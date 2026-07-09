@@ -1,0 +1,30 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="88" y1="54" x2="936" y2="970" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#181c29"/>
+      <stop offset="1" stop-color="#0c0e15"/>
+    </linearGradient>
+    <linearGradient id="coil" x1="180" y1="250" x2="820" y2="780" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#e09a58"/>
+      <stop offset="1" stop-color="#4da3ff"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="20" stdDeviation="30" flood-color="#000000" flood-opacity="0.35"/>
+    </filter>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="12" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <rect x="72" y="72" width="880" height="880" rx="220" fill="url(#bg)" stroke="#263247" stroke-width="34" filter="url(#shadow)"/>
+  <circle cx="512" cy="512" r="324" fill="#4da3ff" opacity="0.055"/>
+  <circle cx="512" cy="512" r="224" fill="#e09a58" opacity="0.035"/>
+  <path d="M188 512H836" stroke="#a9b2c4" stroke-width="30" stroke-linecap="round" opacity="0.44"/>
+  <path d="M246 512C246 365 342 365 342 512C342 659 438 659 438 512C438 365 534 365 534 512C534 659 630 659 630 512C630 365 726 365 726 512" stroke="url(#coil)" stroke-width="78" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)"/>
+  <path d="M760 512H850M807 454L866 512L807 570" stroke="#7cbcff" stroke-width="48" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="248" cy="512" r="22" fill="#e09a58"/>
+  <circle cx="726" cy="512" r="22" fill="#4da3ff"/>
+</svg>
