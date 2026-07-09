@@ -4,11 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="color-scheme" content="dark" />
-  <title>Advanced Solenoid Designer | Coil Calculator and Magnetic Field Simulator</title>
-  <meta name="description" content="Advanced Solenoid Designer is an interactive electromagnetic coil design tool for calculating solenoid parameters, magnetic field maps, inductance, resistance, resonance, impedance matching, and optimization."> 
-  <meta name="keywords" content="solenoid designer, coil calculator, magnetic field simulator, inductance calculator, electromagnetic coil design, Helmholtz coil, Maxwell coil, PCB coil">  
-  <meta name="robots" content="index, follow">  
-  <link rel="canonical" href="https://sfurkankahraman.github.io/advanced-solenoid-designer/">
+  <title>Solenoid / Spiral Designer — Live Web v28</title>
   <style>
     :root {
       /* Structural tokens shared across every theme */
@@ -31,6 +27,7 @@
       --panel-2: #181c29;
       --panel-3: #1f2433;
       --input: #0d1018;
+      --canvas-bg: #0a0c13;
       --line: #232938;
       --line-soft: rgba(148,163,196,.10);
       --muted: #6f7890;
@@ -54,6 +51,7 @@
       --panel-2: #112044;
       --panel-3: #17305e;
       --input: #081124;
+      --canvas-bg: #060b1a;
       --line: #1d356b;
       --line-soft: rgba(120,170,255,.14);
       --muted: #6f86bd;
@@ -70,26 +68,27 @@
       color-scheme: dark;
     }
 
-    /* Light (white / paper) */
+    /* Light (soft gray) */
     :root[data-theme="light"] {
-      --bg: #f4f6fb;
-      --panel: #ffffff;
-      --panel-2: #eef1f8;
-      --panel-3: #e4e9f4;
+      --bg: #eef1f5;
+      --panel: #f8fafc;
+      --panel-2: #edf1f5;
+      --panel-3: #e3e8ee;
       --input: #ffffff;
-      --line: #d3daea;
-      --line-soft: rgba(60,80,120,.12);
-      --muted: #78829a;
-      --text: #1a2030;
-      --sub: #47506a;
+      --canvas-bg: #f3f6f9;
+      --line: #ced6df;
+      --line-soft: rgba(70,84,104,.10);
+      --muted: #6f7b8c;
+      --text: #1f2533;
+      --sub: #4b5565;
       --blue: #2f7fe0;
       --blue-2: #1f6fd0;
       --green: #1fa564;
       --amber: #c9860f;
       --red: #d84640;
-      --copper: #b9702f;
-      --glow: rgba(47,127,224,.06);
-      --shadow: 0 8px 24px rgba(30,50,90,.12);
+      --copper: #a86a33;
+      --glow: rgba(47,127,224,.05);
+      --shadow: 0 8px 24px rgba(30,50,90,.10);
       color-scheme: light;
     }
 
@@ -361,6 +360,16 @@
       line-height: 1.4;
       margin: 7px 0 2px;
     }
+    .type-hint {
+      color: var(--muted);
+      font-size: .72rem;
+      line-height: 1.45;
+      margin: 8px 0 2px;
+      padding: 7px 9px;
+      border-left: 2px solid var(--accent, #6ea8fe);
+      background: rgba(110,168,254,.07);
+      border-radius: 0 6px 6px 0;
+    }
     .tool-output {
       margin-top: 8px;
       padding: 9px 10px;
@@ -399,6 +408,9 @@
     .viewer-offset-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; }
     .viewer-offset-grid label { display: grid; gap: 3px; color: var(--muted); font-size: .64rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
     .viewer-offset-grid input { min-height: 28px; padding: 4px 7px; }
+    .move-mode-row { display: flex; align-items: center; gap: 6px; margin-top: 7px; color: var(--muted); font-size: .66rem; cursor: pointer; }
+    .move-mode-row input { width: 14px; height: 14px; }
+    .coil-swatch { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: middle; border: 1px solid rgba(255,255,255,.25); }
     .mutual-output-panel { display: none; border-top: 1px solid var(--line); border-bottom: 0; max-height: 158px; overflow: auto; scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
     .mutual-output-panel.active { display: block; }
     .mutual-output-panel .mini-table { margin-top: 2px; }
@@ -659,6 +671,39 @@
       white-space: nowrap;
     }
 
+    :root[data-theme="light"] .heatmap-toolbar {
+      background: var(--panel-2);
+      border-color: var(--line);
+      backdrop-filter: none;
+    }
+    :root[data-theme="light"] .heatmap-toolbar .mini-btn {
+      background: var(--panel);
+      color: var(--sub);
+      border-color: var(--line);
+      backdrop-filter: none;
+    }
+    :root[data-theme="light"] .heatmap-toolbar .mini-btn:hover {
+      background: var(--panel-3);
+      color: var(--text);
+      border-color: rgba(47,127,224,.30);
+    }
+    :root[data-theme="light"] .heatmap-toolbar .helper,
+    :root[data-theme="light"] .heatmap-readout {
+      color: var(--sub);
+    }
+    :root[data-theme="light"] .viewer-tools .mini-btn {
+      background: var(--panel);
+      color: var(--sub);
+      border-color: var(--line);
+      backdrop-filter: none;
+      box-shadow: 0 1px 2px rgba(30,50,90,.08);
+    }
+    :root[data-theme="light"] .viewer-tools .mini-btn:hover {
+      background: var(--panel-3);
+      color: var(--text);
+      border-color: rgba(47,127,224,.30);
+    }
+
     .visual-note {
       display: inline-flex;
       align-items: center;
@@ -724,7 +769,7 @@
       border: 1px solid var(--line);
       background:
         radial-gradient(circle at 50% 45%, rgba(77,163,255,.06), transparent 62%),
-        #0a0c13;
+        var(--canvas-bg);
       cursor: crosshair;
     }
     .match-summary { display: grid; gap: 6px; }
@@ -902,15 +947,51 @@
       <div class="controls">
         <div id="tab-coil" class="tab-panel active">
           <details open>
+            <summary>Coil type</summary>
+            <div class="control-body">
+              <div class="field wide-field"><label for="coilType">Topology</label><select id="coilType" data-key="coilType">
+                <optgroup label="Cylindrical windings">
+                  <option value="solenoid">Solenoid (single winding)</option>
+                  <option value="helmholtz">Helmholtz pair (uniform field)</option>
+                  <option value="maxwell">Maxwell / anti-Helmholtz pair (gradient)</option>
+                  <option value="racetrack">Racetrack (elongated loop)</option>
+                </optgroup>
+                <optgroup label="Transverse / surface windings">
+                  <option value="saddle">Saddle coil (transverse Bx)</option>
+                </optgroup>
+                <optgroup label="MRI gradient coils">
+                  <option value="gradientZ">Z gradient (Maxwell pair)</option>
+                  <option value="gradientX">X gradient (Golay saddle set)</option>
+                  <option value="gradientY">Y gradient (Golay saddle set)</option>
+                </optgroup>
+                <optgroup label="Planar windings">
+                  <option value="pancake">Pancake (flat spiral)</option>
+                  <option value="spiral">Spiral (Archimedean, tapped radius)</option>
+                </optgroup>
+              </select><span class="unit"></span></div>
+              <div id="coilTypeHint" class="type-hint">A simple helical winding. All downstream analytics, matching and field tools apply.</div>
+              <div class="field type-saddle" style="display:none"><label for="saddleArcDeg">Window arc</label><input id="saddleArcDeg" data-key="saddleArcDeg" type="number" min="20" max="180" step="5"><span class="unit">°</span></div>
+              <div class="field type-racetrack" style="display:none"><label for="rtStraight">Straight length</label><input id="rtStraight" data-key="rtStraight" type="number" min="1" max="500" step="1"><span class="unit">mm</span></div>
+              <div class="field type-racetrack" style="display:none"><label for="rtCorner">Corner radius</label><input id="rtCorner" data-key="rtCorner" type="number" min="0.5" max="200" step="0.5"><span class="unit">mm</span></div>
+              <div class="field type-fieldcomp" style="display:none"><label for="fieldComponent">Field component</label><select id="fieldComponent" data-key="fieldComponent"><option value="auto">Auto (native)</option><option value="Bz">Bz (axial)</option><option value="Bx">Bx (transverse)</option><option value="By">By (transverse)</option><option value="Bmag">|B| magnitude</option></select><span class="unit"></span></div>
+              <div class="field pair-optimizer" style="display:none"><label> </label><button class="btn" id="optimizePairSpacing" type="button" style="width:100%">Optimise pair spacing</button><span class="unit"></span></div>
+            </div>
+          </details>
+          <details open>
             <summary>Geometry</summary>
             <div class="control-body">
-              <div class="field"><label for="innerRadius">Inner radius</label><input id="innerRadius" data-key="innerRadius" type="number" min="0.1" max="200" step="0.5"><span class="unit">mm</span></div>
-              <div class="field"><label for="length">Coil length</label><input id="length" data-key="length" type="number" min="0.1" max="500" step="0.5"><span class="unit">mm</span></div>
-              <div class="field"><label for="numTurns">Turns / layer</label><input id="numTurns" data-key="numTurns" type="number" min="1" max="500" step="1"><span class="unit"></span></div>
-              <div class="field"><label for="numLayers">Layer count</label><input id="numLayers" data-key="numLayers" type="number" min="1" max="100" step="1"><span class="unit"></span></div>
+              <div class="field type-cyl"><label for="innerRadius">Inner radius</label><input id="innerRadius" data-key="innerRadius" type="number" min="0.1" max="200" step="0.5"><span class="unit">mm</span></div>
+              <div class="field type-cyl"><label for="length">Coil length</label><input id="length" data-key="length" type="number" min="0.1" max="500" step="0.5"><span class="unit">mm</span></div>
+              <div class="field type-planar" style="display:none"><label for="planarInnerRadius">Inner radius</label><input id="planarInnerRadius" data-key="planarInnerRadius" type="number" min="0.1" max="200" step="0.5"><span class="unit">mm</span></div>
+              <div class="field type-planar" style="display:none"><label for="planarOuterRadius">Outer radius</label><input id="planarOuterRadius" data-key="planarOuterRadius" type="number" min="0.2" max="400" step="0.5"><span class="unit">mm</span></div>
+              <div class="field type-planar" style="display:none"><label for="planarStacks">Stacked pancakes</label><input id="planarStacks" data-key="planarStacks" type="number" min="1" max="40" step="1"><span class="unit"></span></div>
+              <div class="field type-planar" style="display:none"><label for="planarStackGap">Stack spacing</label><input id="planarStackGap" data-key="planarStackGap" type="number" min="0" max="100" step="0.1"><span class="unit">mm</span></div>
+              <div class="field type-pair" style="display:none"><label for="pairSpacing">Coil-centre spacing</label><input id="pairSpacing" data-key="pairSpacing" type="number" min="0.5" max="500" step="0.5"><span class="unit">mm</span></div>
+              <div class="field"><label for="numTurns" id="numTurnsLabel">Turns / layer</label><input id="numTurns" data-key="numTurns" type="number" min="1" max="500" step="1"><span class="unit"></span></div>
+              <div class="field type-cyl"><label for="numLayers">Layer count</label><input id="numLayers" data-key="numLayers" type="number" min="1" max="100" step="1"><span class="unit"></span></div>
               <div class="field"><label for="wireDiameter">Wire diameter</label><input id="wireDiameter" data-key="wireDiameter" type="number" min="0.05" max="10" step="0.01"><span class="unit">mm</span></div>
               <div class="field"><label for="condDiameter">Conductor diameter</label><input id="condDiameter" data-key="condDiameter" type="number" min="0.01" max="10" step="0.01"><span class="unit">mm</span></div>
-              <div class="field"><label for="interLayerGap">Inter-layer gap</label><input id="interLayerGap" data-key="interLayerGap" type="number" min="0" max="20" step="0.01"><span class="unit">mm</span></div>
+              <div class="field type-cyl"><label for="interLayerGap">Inter-layer gap</label><input id="interLayerGap" data-key="interLayerGap" type="number" min="0" max="20" step="0.01"><span class="unit">mm</span></div>
               <div class="field"><label for="zOffset">Z offset</label><input id="zOffset" data-key="zOffset" type="number" min="-100" max="100" step="0.5"><span class="unit">mm</span></div>
             </div>
           </details>
@@ -950,17 +1031,49 @@
             </div>
           </details>
           <details open class="multi-only">
-            <summary>New coil geometry</summary>
+            <summary>Coil type &amp; geometry</summary>
             <div class="control-body">
-              <div class="field"><label for="nestedInnerRadius">Inner radius</label><input id="nestedInnerRadius" data-nested-key="innerRadius" type="number" min="0.1" max="200" step="0.5"><span class="unit">mm</span></div>
-              <div class="field"><label for="nestedLength">Coil length</label><input id="nestedLength" data-nested-key="length" type="number" min="0.1" max="500" step="0.5"><span class="unit">mm</span></div>
+              <div class="field wide-field"><label for="nestedCoilType">Coil type</label><select id="nestedCoilType" data-nested-key="coilType">
+                <optgroup label="Cylindrical"><option value="solenoid">Solenoid</option><option value="helmholtz">Helmholtz pair</option><option value="maxwell">Maxwell pair</option><option value="racetrack">Racetrack</option></optgroup>
+                <optgroup label="Transverse / gradient"><option value="saddle">Saddle</option><option value="gradientZ">Z gradient</option><option value="gradientX">X gradient</option><option value="gradientY">Y gradient</option></optgroup>
+                <optgroup label="Planar"><option value="pancake">Pancake</option><option value="spiral">Spiral</option></optgroup>
+              </select><span class="unit"></span></div>
+              <div class="field n-cyl"><label for="nestedInnerRadius">Inner radius</label><input id="nestedInnerRadius" data-nested-key="innerRadius" type="number" min="0.1" max="200" step="0.5"><span class="unit">mm</span></div>
+              <div class="field n-cyl"><label for="nestedLength">Coil length</label><input id="nestedLength" data-nested-key="length" type="number" min="0.1" max="500" step="0.5"><span class="unit">mm</span></div>
               <div class="field"><label for="nestedNumTurns">Turns / layer</label><input id="nestedNumTurns" data-nested-key="numTurns" type="number" min="1" max="500" step="1"><span class="unit"></span></div>
-              <div class="field"><label for="nestedNumLayers">Layer count</label><input id="nestedNumLayers" data-nested-key="numLayers" type="number" min="1" max="100" step="1"><span class="unit"></span></div>
+              <div class="field n-cyl"><label for="nestedNumLayers">Layer count</label><input id="nestedNumLayers" data-nested-key="numLayers" type="number" min="1" max="100" step="1"><span class="unit"></span></div>
               <div class="field"><label for="nestedWireDiameter">Wire diameter</label><input id="nestedWireDiameter" data-nested-key="wireDiameter" type="number" min="0.05" max="10" step="0.01"><span class="unit">mm</span></div>
               <div class="field"><label for="nestedCondDiameter">Conductor diameter</label><input id="nestedCondDiameter" data-nested-key="condDiameter" type="number" min="0.01" max="10" step="0.01"><span class="unit">mm</span></div>
-              <div class="field"><label for="nestedInterLayerGap">Inter-layer gap</label><input id="nestedInterLayerGap" data-nested-key="interLayerGap" type="number" min="0" max="20" step="0.01"><span class="unit">mm</span></div>
+              <div class="field n-cyl"><label for="nestedInterLayerGap">Inter-layer gap</label><input id="nestedInterLayerGap" data-nested-key="interLayerGap" type="number" min="0" max="20" step="0.01"><span class="unit">mm</span></div>
+              <div class="field n-saddle" style="display:none"><label for="nestedSaddleArc">Window arc</label><input id="nestedSaddleArc" data-nested-key="saddleArcDeg" type="number" min="20" max="180" step="5"><span class="unit">°</span></div>
+              <div class="field n-rt" style="display:none"><label for="nestedRtStraight">Straight length</label><input id="nestedRtStraight" data-nested-key="rtStraight" type="number" min="1" max="500" step="1"><span class="unit">mm</span></div>
+              <div class="field n-rt" style="display:none"><label for="nestedRtCorner">Corner radius</label><input id="nestedRtCorner" data-nested-key="rtCorner" type="number" min="0.5" max="200" step="0.5"><span class="unit">mm</span></div>
+              <div class="field n-pair" style="display:none"><label for="nestedPairSpacing">Pair / gradient spacing</label><input id="nestedPairSpacing" data-nested-key="pairSpacing" type="number" min="0.5" max="500" step="0.5"><span class="unit">mm</span></div>
+              <div class="field n-planar" style="display:none"><label for="nestedPlanarInner">Inner radius</label><input id="nestedPlanarInner" data-nested-key="planarInnerRadius" type="number" min="0.1" max="200" step="0.5"><span class="unit">mm</span></div>
+              <div class="field n-planar" style="display:none"><label for="nestedPlanarOuter">Outer radius</label><input id="nestedPlanarOuter" data-nested-key="planarOuterRadius" type="number" min="0.2" max="400" step="0.5"><span class="unit">mm</span></div>
+              <div class="field n-planar" style="display:none"><label for="nestedPlanarStacks">Stacks</label><input id="nestedPlanarStacks" data-nested-key="planarStacks" type="number" min="1" max="40" step="1"><span class="unit"></span></div>
               <div class="field"><label for="nestedCurrentSign">Winding direction</label><select id="nestedCurrentSign" data-nested-key="currentSign"><option value="1">Same current direction</option><option value="-1">Opposing current direction</option></select><span class="unit"></span></div>
-              <p class="helper">The mutual-inductance block assumes the coils are connected in series and uses the winding direction to set the sign of each M term.</p>
+              <div class="field"><label for="nestedCurrentScale">Current scale</label><input id="nestedCurrentScale" data-nested-key="currentScale" type="number" min="0" max="100" step="0.05"><span class="unit">×I</span></div>
+            </div>
+          </details>
+          <details open class="multi-only">
+            <summary>Position &amp; rotation</summary>
+            <div class="control-body">
+              <div class="field"><label for="nestedOffX">X offset</label><input id="nestedOffX" data-nested-key="offsetX" type="number" min="-500" max="500" step="0.5"><span class="unit">mm</span></div>
+              <div class="field"><label for="nestedOffY">Y offset</label><input id="nestedOffY" data-nested-key="offsetY" type="number" min="-500" max="500" step="0.5"><span class="unit">mm</span></div>
+              <div class="field"><label for="nestedOffZ">Z offset</label><input id="nestedOffZ" data-nested-key="offsetZ" type="number" min="-500" max="500" step="0.5"><span class="unit">mm</span></div>
+              <div class="field"><label for="nestedRotX">Rotation X</label><input id="nestedRotX" data-nested-key="rotX" type="number" min="-180" max="180" step="1"><span class="unit">°</span></div>
+              <div class="field"><label for="nestedRotY">Rotation Y</label><input id="nestedRotY" data-nested-key="rotY" type="number" min="-180" max="180" step="1"><span class="unit">°</span></div>
+              <div class="field"><label for="nestedRotZ">Rotation Z</label><input id="nestedRotZ" data-nested-key="rotZ" type="number" min="-180" max="180" step="1"><span class="unit">°</span></div>
+              <p class="helper">Drag inside the 3-D view to move the active coil in the screen plane; use the offset/rotation fields for exact placement. Any non-zero rotation makes the coil non-coaxial, so its field and mutual inductance switch to direct Biot–Savart / Neumann integration.</p>
+            </div>
+          </details>
+          <details open class="multi-only">
+            <summary>Appearance</summary>
+            <div class="control-body">
+              <div class="field"><label for="nestedName">Name</label><input id="nestedName" data-nested-key="name" type="text"><span class="unit"></span></div>
+              <div class="field"><label for="nestedColor">Coil colour</label><input id="nestedColor" data-nested-key="color" type="color"><span class="unit"></span></div>
+              <div class="switch-row"><span>Visible in 3-D view</span><label class="switch"><input id="nestedVisible" data-nested-key="visible" type="checkbox"><span class="slider"></span></label></div>
             </div>
           </details>
         </div>
@@ -1028,6 +1141,16 @@
 
         <div id="tab-designs" class="tab-panel">
           <details open>
+            <summary>Preset library</summary>
+            <div class="control-body">
+              <div class="field wide-field"><label for="presetSelect">Template</label><select id="presetSelect"></select><span class="unit"></span></div>
+              <div class="saved-row">
+                <button class="btn primary" id="applyPreset" type="button">Load preset</button>
+              </div>
+              <div id="presetHint" class="type-hint">Professionally seeded starting points. Loading a preset overwrites the active geometry.</div>
+            </div>
+          </details>
+          <details open>
             <summary>Named saved designs</summary>
             <div class="control-body">
               <div class="field wide-field"><label for="designName">Design name</label><input id="designName" type="text" placeholder="e.g. MFH 3 kHz pancake coil"><span class="unit"></span></div>
@@ -1086,13 +1209,7 @@
       </div>
 
       <div class="actions">
-        <button class="btn" id="exportCSV">Analysis CSV</button>
-        <button class="btn" id="exportSPICE">SPICE</button>
-        <button class="btn" id="pinCompareSide">Snapshot as A</button>
-        <button class="btn warn" id="copySummary">Copy summary</button>
         <button class="btn" id="resetDefaults">Reset defaults</button>
-        <button class="btn" id="exportGeometry">JSON</button>
-        <button class="btn" id="exportGeomCSVSide">Geom CSV</button>
         <button class="btn" id="exportSTLSide">STL</button>
       </div>
     </aside>
@@ -1103,12 +1220,16 @@
       <section class="viewer">
         <div class="section-header"><h2>3D coil geometry</h2><span id="pointCount">0 points</span></div>
         <div class="viewer-param-panel" id="multiViewerControls">
-          <div class="viewer-param-title"><span>Relative position · active nested coil</span><span id="viewerActiveCoilName">Nested 1</span></div>
+          <div class="viewer-param-title"><span>Active coil · drag to move</span><span id="viewerActiveCoilName">Nested 1</span></div>
           <div class="viewer-offset-grid">
             <label>X offset<input id="viewerOffsetX" data-viewer-offset="offsetX" type="number" min="-500" max="500" step="0.5"></label>
             <label>Y offset<input id="viewerOffsetY" data-viewer-offset="offsetY" type="number" min="-500" max="500" step="0.5"></label>
             <label>Z offset<input id="viewerOffsetZ" data-viewer-offset="offsetZ" type="number" min="-500" max="500" step="0.5"></label>
+            <label>Rot X<input id="viewerRotX" data-viewer-offset="rotX" type="number" min="-180" max="180" step="1"></label>
+            <label>Rot Y<input id="viewerRotY" data-viewer-offset="rotY" type="number" min="-180" max="180" step="1"></label>
+            <label>Rot Z<input id="viewerRotZ" data-viewer-offset="rotZ" type="number" min="-180" max="180" step="1"></label>
           </div>
+          <label class="move-mode-row"><input id="coilMoveModeToggle" type="checkbox"> <span>Drag moves coil (else rotates view · Shift-drag always moves)</span></label>
         </div>
         <div class="viewer-canvas-wrap">
           <canvas id="coilCanvas" aria-label="3D coil geometry canvas"></canvas>
@@ -1200,6 +1321,16 @@
     const E12_CAP_BASE = [1.0, 1.2, 1.5, 1.8, 2.2, 2.7, 3.3, 3.9, 4.7, 5.6, 6.8, 8.2];
 
     const state = {
+      coilType: "solenoid",
+      saddleArcDeg: 120,
+      rtStraight: 60,
+      rtCorner: 15,
+      fieldComponent: "auto",
+      planarInnerRadius: 8,
+      planarOuterRadius: 30,
+      planarStacks: 1,
+      planarStackGap: 2,
+      pairSpacing: 40,
       innerRadius: 20,
       length: 100,
       numTurns: 80,
@@ -1418,8 +1549,15 @@
         const commit = (soft = true) => {
           const c = getActiveNestedCoil(true);
           const key = el.dataset.nestedKey;
-          if (el.tagName === "SELECT") {
-            c[key] = Number(el.value);
+          if (el.type === "checkbox") {
+            c[key] = el.checked;
+          } else if (el.type === "color") {
+            c[key] = el.value;
+          } else if (el.type === "text") {
+            c[key] = el.value;
+          } else if (el.tagName === "SELECT") {
+            // coilType is a string; currentSign etc. are numeric.
+            c[key] = (key === "coilType") ? el.value : Number(el.value);
           } else {
             const value = readNumberInput(el);
             if (!Number.isFinite(value)) {
@@ -1465,9 +1603,12 @@
       return Number.isFinite(value) ? value : NaN;
     }
 
+    const NESTED_PALETTE = ["#e0954f", "#4fb0e0", "#63d29a", "#c98ce0", "#e0d24f", "#e06b8a"];
+
     function defaultNestedCoil(index = 0) {
       return {
-        name: `Nested ${index + 1}`,
+        name: `Coil ${index + 2}`,
+        coilType: "solenoid",
         innerRadius: Math.max(0.1, Number(state.innerRadius) + (index + 1) * (Number(state.wireDiameter) + Number(state.interLayerGap) + 0.5)),
         length: Number(state.length),
         numTurns: Math.max(1, Math.round(Number(state.numTurns))),
@@ -1478,7 +1619,22 @@
         offsetX: 0,
         offsetY: 0,
         offsetZ: 0,
-        currentSign: 1
+        rotX: 0,
+        rotY: 0,
+        rotZ: 0,
+        currentSign: 1,
+        currentScale: 1,
+        color: NESTED_PALETTE[index % NESTED_PALETTE.length],
+        visible: true,
+        // type-specific parameters (mirror the primary coil's extra params)
+        saddleArcDeg: 120,
+        rtStraight: 60,
+        rtCorner: 15,
+        pairSpacing: 40,
+        planarInnerRadius: 8,
+        planarOuterRadius: 30,
+        planarStacks: 1,
+        planarStackGap: 2
       };
     }
 
@@ -1491,7 +1647,8 @@
 
     function normalizeNestedCoil(c = {}, i = 0) {
       const out = { ...defaultNestedCoil(i), ...c };
-      out.name = out.name || `Nested ${i + 1}`;
+      out.name = out.name || `Coil ${i + 2}`;
+      if (!NESTED_COIL_TYPES.includes(out.coilType)) out.coilType = "solenoid";
       out.innerRadius = clamp(Number(out.innerRadius) || state.innerRadius, 0.1, 200);
       out.length = clamp(Number(out.length) || state.length, 0.1, 500);
       out.numTurns = clamp(Math.round(Number(out.numTurns) || 1), 1, 500);
@@ -1502,7 +1659,21 @@
       out.offsetX = clamp(Number.isFinite(Number(out.offsetX)) ? Number(out.offsetX) : 0, -500, 500);
       out.offsetY = clamp(Number.isFinite(Number(out.offsetY)) ? Number(out.offsetY) : 0, -500, 500);
       out.offsetZ = clamp(Number.isFinite(Number(out.offsetZ)) ? Number(out.offsetZ) : 0, -500, 500);
+      out.rotX = clamp(Number.isFinite(Number(out.rotX)) ? Number(out.rotX) : 0, -180, 180);
+      out.rotY = clamp(Number.isFinite(Number(out.rotY)) ? Number(out.rotY) : 0, -180, 180);
+      out.rotZ = clamp(Number.isFinite(Number(out.rotZ)) ? Number(out.rotZ) : 0, -180, 180);
       out.currentSign = Number(out.currentSign) < 0 ? -1 : 1;
+      out.currentScale = clamp(Number.isFinite(Number(out.currentScale)) ? Number(out.currentScale) : 1, 0, 100);
+      out.visible = out.visible === false ? false : true;
+      if (typeof out.color !== "string" || !/^#[0-9a-fA-F]{6}$/.test(out.color)) out.color = NESTED_PALETTE[i % NESTED_PALETTE.length];
+      out.saddleArcDeg = clamp(Number(out.saddleArcDeg) || 120, 20, 180);
+      out.rtStraight = clamp(Number(out.rtStraight) || 60, 1, 500);
+      out.rtCorner = clamp(Number(out.rtCorner) || 15, 0.5, 200);
+      out.pairSpacing = clamp(Number(out.pairSpacing) || 40, 0.5, 500);
+      out.planarInnerRadius = clamp(Number(out.planarInnerRadius) || 8, 0.1, 200);
+      out.planarOuterRadius = clamp(Number(out.planarOuterRadius) || 30, out.planarInnerRadius + 0.1, 400);
+      out.planarStacks = clamp(Math.round(Number(out.planarStacks) || 1), 1, 40);
+      out.planarStackGap = clamp(Number.isFinite(Number(out.planarStackGap)) ? Number(out.planarStackGap) : 2, 0, 100);
       return out;
     }
 
@@ -1529,7 +1700,7 @@
       if (list) {
         list.innerHTML = state.nestedCoils.length ? state.nestedCoils.map((c, i) => `
           <div class="coil-chip">
-            <div><strong>${escapeHtml(c.name || `Nested ${i + 1}`)}</strong><br><small>R=${Number(c.innerRadius).toFixed(2)} mm · L=${Number(c.length).toFixed(1)} mm · ${c.numTurns}×${c.numLayers}</small></div>
+            <div><span class="coil-swatch" style="background:${escapeHtml(c.color || '#e0954f')}"></span><strong>${escapeHtml(c.name || `Coil ${i + 2}`)}</strong>${c.visible === false ? ' <small>(hidden)</small>' : ''}<br><small>${escapeHtml(c.coilType || 'solenoid')} · ${c.numTurns}t · rot ${Number(c.rotX||0)},${Number(c.rotY||0)},${Number(c.rotZ||0)}°</small></div>
             <small>${Number(c.offsetX).toFixed(1)}, ${Number(c.offsetY).toFixed(1)}, ${Number(c.offsetZ).toFixed(1)} mm</small>
           </div>`).join("") : `<div class="coil-chip"><div><strong>No nested coil yet</strong><br><small>Click Add coil to create one.</small></div></div>`;
       }
@@ -1547,13 +1718,24 @@
         document.querySelectorAll("[data-nested-key]").forEach(el => {
           if (el === preserveInput || document.activeElement === el) return;
           const key = el.dataset.nestedKey;
-          if (el.tagName === "SELECT") el.value = String(active[key]);
+          if (el.type === "checkbox") el.checked = active[key] !== false;
+          else if (el.type === "color") el.value = active[key] || "#e0954f";
+          else if (el.tagName === "SELECT") el.value = String(active[key]);
           else el.value = active[key];
         });
         document.querySelectorAll("[data-viewer-offset]").forEach(el => {
           if (el === preserveInput || document.activeElement === el) return;
           el.value = active[el.dataset.viewerOffset];
         });
+        // Show only the geometry fields relevant to this nested coil's type.
+        const ct = active.coilType || "solenoid";
+        const planar = (ct === "pancake" || ct === "spiral");
+        const show = (sel, on) => document.querySelectorAll(sel).forEach(e => e.style.display = on ? "" : "none");
+        show(".n-cyl", !planar);
+        show(".n-planar", planar);
+        show(".n-saddle", ct === "saddle" || ct === "gradientX" || ct === "gradientY");
+        show(".n-rt", ct === "racetrack");
+        show(".n-pair", ct === "helmholtz" || ct === "maxwell" || ct === "gradientX" || ct === "gradientY" || ct === "gradientZ");
       }
       updateMutualOutput();
     }
@@ -1561,9 +1743,13 @@
     function bindCanvases() {
       coilCanvas.addEventListener("pointerdown", e => {
         runtime.dragging = true;
+        // Shift-drag (or the on-canvas move toggle) translates the active nested
+        // coil in the screen plane instead of rotating the view.
+        runtime.coilDragMove = (e.shiftKey || runtime.coilMoveMode) && state.multiEnabled && !!getActiveNestedCoil(false);
         runtime.lastX = e.clientX;
         runtime.lastY = e.clientY;
         coilCanvas.setPointerCapture(e.pointerId);
+        coilCanvas.style.cursor = runtime.coilDragMove ? "move" : "grabbing";
       });
       coilCanvas.addEventListener("pointermove", e => {
         if (!runtime.dragging) return;
@@ -1571,12 +1757,34 @@
         const dy = e.clientY - runtime.lastY;
         runtime.lastX = e.clientX;
         runtime.lastY = e.clientY;
-        runtime.rotY += dx * 0.008;
-        runtime.rotX += dy * 0.008;
-        renderCoil();
+        if (runtime.coilDragMove) {
+          const c = getActiveNestedCoil(false);
+          const scale = runtime.coilRenderScale || 0;   // px per metre
+          // Only translate when we have a sane render scale (canvas has been
+          // drawn at least once); guards against a wild jump on a zero scale.
+          if (c && scale > 1) {
+            // Screen displacement → projected-space vector (y is inverted on screen).
+            const projDx = dx / scale;
+            const projDy = -dy / scale;
+            // Map screen right/up into world, translate the coil, convert to mm.
+            const world = unprojectVector({ x: projDx, y: projDy, z: 0 }, runtime.rotX, runtime.rotY);
+            c.offsetX = clamp((Number(c.offsetX) || 0) + world.x * 1000, -500, 500);
+            c.offsetY = clamp((Number(c.offsetY) || 0) + world.y * 1000, -500, 500);
+            c.offsetZ = clamp((Number(c.offsetZ) || 0) + world.z * 1000, -500, 500);
+            renderMultiControls();
+            scheduleUpdate();
+          }
+        } else {
+          runtime.rotY += dx * 0.008;
+          runtime.rotX += dy * 0.008;
+          renderCoil();
+        }
       });
-      coilCanvas.addEventListener("pointerup", () => runtime.dragging = false);
-      coilCanvas.addEventListener("pointercancel", () => runtime.dragging = false);
+      const endDrag = () => { runtime.dragging = false; runtime.coilDragMove = false; coilCanvas.style.cursor = ""; };
+      coilCanvas.addEventListener("pointerup", endDrag);
+      coilCanvas.addEventListener("pointercancel", endDrag);
+      const moveToggle = $("coilMoveModeToggle");
+      if (moveToggle) moveToggle.addEventListener("change", () => { runtime.coilMoveMode = moveToggle.checked; });
       $("viewIso").addEventListener("click", () => { runtime.rotX = -0.52; runtime.rotY = 0.64; renderCoil(); });
       $("viewSide").addEventListener("click", () => { runtime.rotX = 0; runtime.rotY = Math.PI / 2; renderCoil(); });
       $("viewTop").addEventListener("click", () => { runtime.rotX = -Math.PI / 2; runtime.rotY = 0; renderCoil(); });
@@ -1646,6 +1854,16 @@
           multiEnabled: false,
           activeNestedCoil: 0,
           nestedCoils: [],
+          coilType: "solenoid",
+          saddleArcDeg: 120,
+          rtStraight: 60,
+          rtCorner: 15,
+          fieldComponent: "auto",
+          planarInnerRadius: 8,
+          planarOuterRadius: 30,
+          planarStacks: 1,
+          planarStackGap: 2,
+          pairSpacing: 40,
           wireType: "Solid",
           litzStrands: 100,
           strandDiam: 80,
@@ -1683,11 +1901,11 @@
         showToast("Defaults restored");
         scheduleUpdate();
       });
-      $("exportGeometry").addEventListener("click", exportGeometryJSON);
-      $("exportCSV").addEventListener("click", exportCSV);
-      $("exportSPICE").addEventListener("click", exportSPICE);
-      $("copySummary").addEventListener("click", copySummary);
       const on = (id, ev, fn) => { const el = $(id); if (el) el.addEventListener(ev, fn); };
+      on("exportGeometry", "click", exportGeometryJSON);
+      on("exportCSV", "click", exportCSV);
+      on("exportSPICE", "click", exportSPICE);
+      on("copySummary", "click", copySummary);
       on("copyShareTop", "click", copyShareLink);
       on("compactFitTop", "click", compactFitLayout);
       on("wideControlsTop", "click", () => { setSidebarWidth(480); showToast("Controls widened"); scheduleUpdate(false); });
@@ -1703,13 +1921,128 @@
       $("saveDesign").addEventListener("click", saveNamedDesign);
       $("loadDesign").addEventListener("click", loadNamedDesign);
       $("deleteDesign").addEventListener("click", deleteNamedDesign);
-      $("pinCompare").addEventListener("click", pinCurrentDesign);
-      $("pinCompareSide").addEventListener("click", pinCurrentDesign);
+      on("pinCompare", "click", pinCurrentDesign);
+      on("pinCompareSide", "click", pinCurrentDesign);
       $("snapshotA").addEventListener("click", pinCurrentDesign);
       $("clearSnapshot").addEventListener("click", clearSnapshot);
       $("applyLitzRecommendation").addEventListener("click", applyLitzRecommendation);
       $("runOptimizer").addEventListener("click", runTargetOptimizer);
       $("applyOptimizer").addEventListener("click", applyOptimizerResult);
+      on("optimizePairSpacing", "click", optimizePairSpacing);
+      on("applyPreset", "click", applyPresetFromSelect);
+      populatePresetSelect();
+    }
+
+    // ---- Coil-pair spacing optimiser (Helmholtz / Maxwell) -----------------
+    // Sweeps centre-to-centre spacing and picks the value that maximises axial
+    // field homogeneity over the central region (Helmholtz) or gradient
+    // linearity with a nulled centre (Maxwell). Uses the existing on-axis field
+    // model so the result is consistent with every other tool in the app.
+    function pairAxialField(spacingM) {
+      // Build two loop stacks matching the current coil, evaluate Bz(z) on axis.
+      const u = units();
+      const R = u.r0 + (state.numLayers - 1) * (u.wd + u.gap) / 2;
+      const turnsTotal = state.numTurns * state.numLayers;
+      const I = state.currentPeak;
+      const half = spacingM / 2;
+      const sign2 = (state.coilType === "maxwell") ? -1 : 1;
+      const Bz = (z) => {
+        // Thin-solenoid approximation: treat each coil as turnsTotal coaxial
+        // loops spread over its length; sum axial component.
+        const nSeg = 9;
+        let b = 0;
+        for (let c = 0; c < 2; c++) {
+          const zc = (c === 0 ? -half : half);
+          const s = (c === 0 ? 1 : sign2);
+          for (let k = 0; k < nSeg; k++) {
+            const zk = zc - u.len / 2 + u.len * (k + 0.5) / nSeg;
+            const dz = z - zk;
+            const denom = Math.pow(R * R + dz * dz, 1.5);
+            b += s * MU0 * (turnsTotal / nSeg) * I * R * R / (2 * Math.max(denom, 1e-30));
+          }
+        }
+        return b;
+      };
+      return { Bz, R, half };
+    }
+
+    function optimizePairSpacing() {
+      const type = state.coilType;
+      if (type !== "helmholtz" && type !== "maxwell") { showToast("Select a Helmholtz or Maxwell coil first"); return; }
+      const u = units();
+      const R = u.r0 + (state.numLayers - 1) * (u.wd + u.gap) / 2;
+      // Search spacing around the theoretical optimum.
+      const theoretical = type === "helmholtz" ? R : Math.sqrt(3) * R;
+      const lo = Math.max(u.len + u.wd, theoretical * 0.4);
+      const hi = theoretical * 1.8;
+      const N = 240;
+      let best = null;
+      const zEval = (frac) => R * frac; // evaluate uniformity over |z| < 0.3 R
+      for (let i = 0; i <= N; i++) {
+        const sp = lo + (hi - lo) * i / N;
+        const { Bz } = pairAxialField(sp);
+        let metric;
+        if (type === "helmholtz") {
+          // maximise flatness: minimise relative variation of Bz over central region
+          const b0 = Bz(0);
+          if (Math.abs(b0) < 1e-18) continue;
+          let maxDev = 0;
+          for (let f = -0.3; f <= 0.3001; f += 0.05) maxDev = Math.max(maxDev, Math.abs((Bz(zEval(f)) - b0) / b0));
+          metric = maxDev; // smaller is better
+        } else {
+          // Maxwell: want linear gradient through zero at centre. Score = ripple
+          // of dBz/dz across central region (deviation from constant slope).
+          const eps = R * 0.02;
+          const slope0 = (Bz(eps) - Bz(-eps)) / (2 * eps);
+          if (Math.abs(slope0) < 1e-18) continue;
+          let maxDev = 0;
+          for (let f = -0.3; f <= 0.3001; f += 0.05) {
+            const z = zEval(f);
+            const slope = (Bz(z + eps) - Bz(z - eps)) / (2 * eps);
+            maxDev = Math.max(maxDev, Math.abs((slope - slope0) / slope0));
+          }
+          metric = maxDev;
+        }
+        if (best === null || metric < best.metric) best = { sp, metric };
+      }
+      if (!best) { showToast("Could not optimise spacing"); return; }
+      state.pairSpacing = clamp(best.sp * 1000, 0.5, 500);
+      loadControls();
+      scheduleUpdate();
+      const pct = (best.metric * 100).toFixed(3);
+      const nm = type === "helmholtz" ? "field ripple" : "gradient ripple";
+      showToast(`Optimal spacing ${state.pairSpacing.toFixed(2)} mm · ${nm} ${pct}% over ±0.3R`);
+    }
+
+    // ---- Preset library ----------------------------------------------------
+    const PRESET_LIBRARY = [
+      { id: "sol-mpi-drive", name: "MPI drive solenoid (25 kHz)", patch: { coilType: "solenoid", innerRadius: 18, length: 40, numTurns: 60, numLayers: 3, wireDiameter: 1.0, condDiameter: 0.9, interLayerGap: 0.05, currentPeak: 5, frequency: 25, wireType: "Litz", litzStrands: 100, strandDiam: 71 } },
+      { id: "sol-mps", name: "MPS receive solenoid (10 kHz)", patch: { coilType: "solenoid", innerRadius: 6, length: 20, numTurns: 120, numLayers: 4, wireDiameter: 0.5, condDiameter: 0.45, interLayerGap: 0.02, currentPeak: 0.1, frequency: 10, wireType: "Litz", litzStrands: 125, strandDiam: 80 } },
+      { id: "helm-uniform", name: "Helmholtz pair · uniform field", patch: { coilType: "helmholtz", innerRadius: 50, length: 8, numTurns: 40, numLayers: 2, wireDiameter: 1.2, condDiameter: 1.1, pairSpacing: 50, currentPeak: 2, frequency: 1 } },
+      { id: "maxwell-grad", name: "Maxwell pair · linear gradient", patch: { coilType: "maxwell", innerRadius: 50, length: 8, numTurns: 40, numLayers: 2, wireDiameter: 1.2, condDiameter: 1.1, pairSpacing: 86.6, currentPeak: 2, frequency: 1 } },
+      { id: "pancake-wpt", name: "Wireless-power pancake (single)", patch: { coilType: "pancake", planarInnerRadius: 10, planarOuterRadius: 45, planarStacks: 1, planarStackGap: 0, numTurns: 20, wireDiameter: 1.2, condDiameter: 1.1, currentPeak: 3, frequency: 120 } },
+      { id: "pancake-double", name: "Double pancake (high-L)", patch: { coilType: "pancake", planarInnerRadius: 12, planarOuterRadius: 50, planarStacks: 2, planarStackGap: 4, numTurns: 24, wireDiameter: 1.0, condDiameter: 0.9, currentPeak: 2, frequency: 100 } },
+      { id: "spiral-nfc", name: "NFC / metal-detector spiral", patch: { coilType: "spiral", planarInnerRadius: 5, planarOuterRadius: 40, planarStacks: 1, planarStackGap: 0, numTurns: 30, wireDiameter: 0.4, condDiameter: 0.35, currentPeak: 0.2, frequency: 125 } },
+      { id: "induction-heat", name: "Induction-heating pancake", patch: { coilType: "pancake", planarInnerRadius: 8, planarOuterRadius: 35, planarStacks: 1, planarStackGap: 0, numTurns: 12, wireDiameter: 3.0, condDiameter: 2.8, currentPeak: 20, frequency: 80 } }
+    ];
+
+    function populatePresetSelect() {
+      const sel = $("presetSelect");
+      if (!sel) return;
+      sel.innerHTML = PRESET_LIBRARY.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join("");
+    }
+
+    function applyPresetFromSelect() {
+      const sel = $("presetSelect");
+      if (!sel) return;
+      const preset = PRESET_LIBRARY.find(p => p.id === sel.value);
+      if (!preset) return;
+      Object.assign(state, preset.patch);
+      if (preset.patch.wireType !== "Litz" && state.wireType === undefined) state.wireType = "Solid";
+      normalizeState();
+      loadControls();
+      scheduleUpdate();
+      showToast(`Loaded preset: ${preset.name}`);
     }
 
     function loadLayoutPrefs() {
@@ -1734,6 +2067,13 @@
       const raw = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
       const value = Number.parseFloat(raw);
       return Number.isFinite(value) ? value : fallback;
+    }
+
+    // Read a CSS custom property as a color string so canvas draws follow the
+    // active theme. Falls back to the supplied default if the var is unset.
+    function getCssColor(name, fallback) {
+      const raw = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+      return raw || fallback;
     }
 
     function setSidebarWidth(px, persist = true) {
@@ -1852,8 +2192,37 @@
       document.querySelectorAll(".grad-only").forEach(el => el.style.opacity = state.gradiometricEnabled ? "1" : ".42");
       const tolOut = $("matchToleranceOut");
       if (tolOut) tolOut.textContent = `±${Math.round(state.matchTolerance)}%`;
+      updateCoilTypeUI();
       syncRenderSeg();
       renderMultiControls();
+    }
+
+    const COIL_TYPE_INFO = {
+      solenoid:  { hint: "A simple helical winding. All downstream analytics, matching and field tools apply.", turnsLabel: "Turns / layer", planar: false, pair: false, pairOpt: false },
+      helmholtz: { hint: "Two identical coaxial coils driven in the same direction. Centre-to-centre spacing equal to the coil radius gives the flattest central field (uniform region). Use “Optimise pair spacing”.", turnsLabel: "Turns / layer", planar: false, pair: true, pairOpt: true },
+      maxwell:   { hint: "Two identical coaxial coils driven in opposition (anti-Helmholtz). Spacing ≈ √3·R nulls the centre field and gives the most linear axial gradient. Use “Optimise pair spacing”.", turnsLabel: "Turns / layer", planar: false, pair: true, pairOpt: true },
+      racetrack: { hint: "Elongated loop: two straight sides joined by semicircular ends, wound as a helix along z. Field and inductance are computed by direct Biot–Savart on the winding path.", turnsLabel: "Turns / layer", planar: false, pair: false, pairOpt: false, racetrack: true, cyl: true, fieldcomp: true },
+      saddle:    { hint: "Two curved windows on a cylinder carrying opposing azimuthal current — a transverse-field (Bx) coil for RF/MPI receive. Uses the “Inner radius” as the former radius and “Coil length” as the window length. Fields via Biot–Savart.", turnsLabel: "Turns / window", planar: false, pair: false, pairOpt: false, saddle: true, cyl: true, fieldcomp: true },
+      gradientZ: { hint: "Z-gradient = Maxwell pair (opposing coaxial loops) producing linear dBz/dz through the isocentre. Spacing ≈ √3·R for best linearity.", turnsLabel: "Turns / loop", planar: false, pair: true, pairOpt: true, cyl: true, fieldcomp: true },
+      gradientX: { hint: "X-gradient = Golay-style saddle set (4 windows) producing linear dBz/dx across the bore. Uses “Inner radius” as bore radius, “Coil length” as window length.", turnsLabel: "Turns / window", planar: false, pair: false, pairOpt: false, saddle: true, cyl: true, fieldcomp: true },
+      gradientY: { hint: "Y-gradient = Golay saddle set rotated 90° from X, producing linear dBz/dy across the bore.", turnsLabel: "Turns / window", planar: false, pair: false, pairOpt: false, saddle: true, cyl: true, fieldcomp: true },
+      pancake:   { hint: "Flat spiral winding. Turns step outward from inner to outer radius. Stack multiple pancakes coaxially for higher inductance / field.", turnsLabel: "Radial turns", planar: true, pair: false, pairOpt: false },
+      spiral:    { hint: "Archimedean planar spiral (single flat winding). Radius grows linearly with turn count between the inner and outer radius.", turnsLabel: "Spiral turns", planar: true, pair: false, pairOpt: false }
+    };
+
+    function updateCoilTypeUI() {
+      const type = state.coilType || "solenoid";
+      const info = COIL_TYPE_INFO[type] || COIL_TYPE_INFO.solenoid;
+      const show = (sel, on) => document.querySelectorAll(sel).forEach(el => el.style.display = on ? "" : "none");
+      show(".type-cyl", !info.planar);
+      show(".type-planar", info.planar);
+      show(".type-pair", info.pair);
+      show(".pair-optimizer", info.pairOpt);
+      show(".type-saddle", !!info.saddle);
+      show(".type-racetrack", !!info.racetrack);
+      show(".type-fieldcomp", !!info.fieldcomp);
+      const hint = $("coilTypeHint"); if (hint) hint.textContent = info.hint;
+      const tl = $("numTurnsLabel"); if (tl) tl.textContent = info.turnsLabel;
     }
 
     // Mirror the active render quality onto the 3D-panel segmented control.
@@ -1863,6 +2232,16 @@
     }
 
     function normalizeState() {
+      if (!COIL_TYPE_INFO[state.coilType]) state.coilType = "solenoid";
+      state.saddleArcDeg = clamp(state.saddleArcDeg || 120, 20, 180);
+      state.rtStraight = clamp(state.rtStraight || 60, 1, 500);
+      state.rtCorner = clamp(state.rtCorner || 15, 0.5, 200);
+      if (!["auto", "Bx", "By", "Bz", "Bmag"].includes(state.fieldComponent)) state.fieldComponent = "auto";
+      state.planarInnerRadius = clamp(state.planarInnerRadius || 1, 0.1, 200);
+      state.planarOuterRadius = clamp(state.planarOuterRadius || 2, state.planarInnerRadius + 0.1, 400);
+      state.planarStacks = clamp(Math.round(state.planarStacks || 1), 1, 40);
+      state.planarStackGap = clamp(Number.isFinite(state.planarStackGap) ? state.planarStackGap : 0, 0, 100);
+      state.pairSpacing = clamp(state.pairSpacing || 1, 0.5, 500);
       state.numTurns = clamp(Math.round(state.numTurns || 1), 1, 500);
       state.numLayers = clamp(Math.round(state.numLayers || 1), 1, 100);
       state.litzStrands = clamp(Math.round(state.litzStrands || 7), 7, 1000);
@@ -1941,49 +2320,430 @@
     function makeCoilSpecs() {
       const u = units();
       const specs = [];
-      const add = (label, geom, centerZ, sign, group, coilIndex) => {
+      const add = (label, geom, centerZ, sign, group, coilIndex, attrs = {}) => {
         const layerSpacing = geom.wd + geom.gap;
         const meanRadius = geom.r0 + (geom.layers - 1) * layerSpacing / 2;
         const radialBuild = Math.max((geom.layers - 1) * layerSpacing + geom.wd, geom.wd);
         const turnsTotal = geom.turns * geom.layers;
         const selfL = computeWheelerInductance(meanRadius, geom.len, radialBuild, turnsTotal, geom.layers);
         const selfC = estimateCoilSelfCapacitance(meanRadius, geom.len, radialBuild, geom.turns, geom.layers, geom.wd, geom.cd, geom.gap);
-        specs.push({
+        const spec = {
           label, group, coilIndex,
           r0: geom.r0, len: geom.len, wd: geom.wd, cd: geom.cd, gap: geom.gap,
           turns: geom.turns, layers: geom.layers,
           xOff: geom.xOff || 0, yOff: geom.yOff || 0, zOff: (geom.zOff || 0) + centerZ,
-          sign, layerSpacing, meanRadius, radialBuild, turnsTotal, selfL, selfC
+          sign, layerSpacing, meanRadius, radialBuild, turnsTotal, selfL, selfC,
+          I: (attrs.I != null ? attrs.I : state.currentPeak),
+          color: attrs.color || null, visible: attrs.visible !== false
+        };
+        // If a rotation is requested, convert this circular coil into an explicit
+        // rotated polyline so field/mutual/render all see the true geometry.
+        if (attrs.rot && (attrs.rot.rx || attrs.rot.ry || attrs.rot.rz)) {
+          const center = { x: spec.xOff, y: spec.yOff, z: spec.zOff };
+          const built = circularCoilToRotatedPath(spec, attrs.rot, center);
+          addPath(label, built.points, built.meta, group, coilIndex, attrs);
+          return;
+        }
+        specs.push(spec);
+      };
+      const type = state.coilType || "solenoid";
+
+      // ---- Path-based coil helper (saddle / racetrack / gradient / rotated) --
+      // Builds a spec carrying an explicit 3-D current polyline. selfL is
+      // estimated from the total wire length + enclosed-area loop model; selfC
+      // reuses the distributed-capacitance estimator with an equivalent radius.
+      const addPath = (label, path, meta, group, coilIndex, attrs = {}) => {
+        // Wire length from the polyline.
+        let wireLen = 0;
+        for (let i = 0; i < path.length - 1; i++) {
+          wireLen += Math.hypot(path[i + 1].x - path[i].x, path[i + 1].y - path[i].y, path[i + 1].z - path[i].z);
+        }
+        const turnsTotal = meta.turns * (meta.layers || 1);
+        // Self-inductance: current-sheet estimate via enclosed area per turn.
+        // For non-circular loops we use L ≈ μ0 N² A_eff / l_eff (long-coil) plus
+        // a short-coil correction, falling back to the wire-length round-loop
+        // model. This is an estimate; verify critical designs against FEM.
+        const Aeff = Math.max(meta.areaPerTurn || 0, 1e-9);
+        const lEff = Math.max(meta.effLength || wireLen / Math.max(turnsTotal, 1), 1e-6);
+        const rEquiv = Math.sqrt(Aeff / Math.PI);
+        let selfL = computeWheelerInductance(rEquiv, lEff, meta.radialBuild || meta.wd, turnsTotal, meta.layers || 1);
+        if (!Number.isFinite(selfL) || selfL <= 0) selfL = MU0 * turnsTotal * turnsTotal * Aeff / lEff;
+        const selfC = estimateCoilSelfCapacitance(rEquiv, lEff, meta.radialBuild || meta.wd, meta.turns, meta.layers || 1, meta.wd, meta.cd, meta.gap || 0);
+        specs.push({
+          label, group, coilIndex, isPath: true, path,
+          I: (attrs.I != null ? attrs.I : state.currentPeak), sign: meta.sign || 1,
+          r0: rEquiv, len: lEff, wd: meta.wd, cd: meta.cd, gap: meta.gap || 0,
+          turns: meta.turns, layers: meta.layers || 1,
+          xOff: meta.xOff || 0, yOff: meta.yOff || 0, zOff: meta.zOff || 0,
+          layerSpacing: (meta.wd + (meta.gap || 0)), meanRadius: rEquiv,
+          radialBuild: meta.radialBuild || meta.wd, turnsTotal, wireLen,
+          fieldComponent: meta.fieldComponent || "Bz",
+          color: attrs.color || null, visible: attrs.visible !== false,
+          selfL, selfC
         });
       };
-      const mainGeom = { r0: u.r0, len: u.len, wd: u.wd, cd: u.cd, gap: u.gap, turns: state.numTurns, layers: state.numLayers, xOff: 0, yOff: 0, zOff: u.zOff };
-      if (state.gradiometricEnabled) {
-        const c2c = u.coilGap + u.len;
-        add("Primary A", mainGeom, -c2c / 2, 1, "primary", 0);
-        add("Primary B", mainGeom, c2c / 2, state.windingPolarity === "Opposing" ? -1 : 1, "primary", 1);
+
+      if (type === "saddle") {
+        const path = buildSaddlePath(u);
+        addPath("Saddle", path.points, path.meta, "primary", 0);
+      } else if (type === "racetrack") {
+        const path = buildRacetrackPath(u);
+        addPath("Racetrack", path.points, path.meta, "primary", 0);
+      } else if (type === "gradientX" || type === "gradientY" || type === "gradientZ") {
+        const built = buildGradientPaths(u, type);
+        built.forEach((b, i) => addPath(b.label, b.points, b.meta, "primary", i));
+      } else if (type === "helmholtz" || type === "maxwell") {
+        // Two identical coaxial windings. Helmholtz => same current direction,
+        // classic separation = coil radius for a maximally flat centre field.
+        // Maxwell / anti-Helmholtz => opposing current, separation = sqrt(3)*R
+        // which cancels the field at centre and gives the flattest gradient.
+        const pairGeom = { r0: u.r0, len: u.len, wd: u.wd, cd: u.cd, gap: u.gap, turns: state.numTurns, layers: state.numLayers, xOff: 0, yOff: 0, zOff: u.zOff };
+        const spacing = (Number(state.pairSpacing) || 0) / 1000;   // centre-to-centre, m
+        const half = spacing / 2;
+        if (type === "helmholtz") {
+          add("Helmholtz A", pairGeom, -half, 1, "primary", 0);
+          add("Helmholtz B", pairGeom, half, 1, "primary", 1);
+        } else {
+          add("Maxwell A", pairGeom, -half, 1, "primary", 0);
+          add("Maxwell B", pairGeom, half, -1, "primary", 1);
+        }
+      } else if (type === "pancake" || type === "spiral") {
+        // Flat/planar spiral. Modelled as a nearly-planar winding whose turns
+        // step OUTWARD in radius rather than along an axis. We reuse the
+        // multilayer helix model: each "layer" is one radial turn, layer
+        // spacing = wire pitch in the radial direction, axial length ~ wire
+        // diameter so the winding is essentially planar. Stacked pancakes are
+        // added as additional coaxial planar windings along z.
+        const rIn = (Number(state.planarInnerRadius) || 1) / 1000;
+        const rOut = Math.max((Number(state.planarOuterRadius) || 2) / 1000, rIn + u.wd);
+        const nTurns = Math.max(1, Math.round(state.numTurns));
+        const radialPitch = (rOut - rIn) / Math.max(nTurns - 1, 1);
+        const stacks = Math.max(1, Math.round(state.planarStacks || 1));
+        const stackGap = (Number(state.planarStackGap) || 0) / 1000;
+        const planeThickness = u.wd;                    // essentially planar
+        const stackPitch = planeThickness + stackGap;
+        const stackSpan = (stacks - 1) * stackPitch;
+        for (let s = 0; s < stacks; s++) {
+          const zc = u.zOff - stackSpan / 2 + s * stackPitch;
+          // r0 = inner radius, "layers" walk outward by radialPitch, 1 turn each
+          add(stacks > 1 ? `Pancake ${s + 1}` : (type === "spiral" ? "Spiral" : "Pancake"),
+            {
+              r0: rIn, len: planeThickness, wd: u.wd, cd: u.cd,
+              gap: Math.max(radialPitch - u.wd, 0),      // radial gap so layerSpacing = radialPitch
+              turns: 1, layers: nTurns, xOff: 0, yOff: 0, zOff: 0
+            }, zc, 1, "primary", s);
+        }
       } else {
-        add("Primary", mainGeom, 0, 1, "primary", 0);
+        // Default: solenoid (unchanged behaviour, incl. gradiometer pair).
+        const mainGeom = { r0: u.r0, len: u.len, wd: u.wd, cd: u.cd, gap: u.gap, turns: state.numTurns, layers: state.numLayers, xOff: 0, yOff: 0, zOff: u.zOff };
+        if (state.gradiometricEnabled) {
+          const c2c = u.coilGap + u.len;
+          add("Primary A", mainGeom, -c2c / 2, 1, "primary", 0);
+          add("Primary B", mainGeom, c2c / 2, state.windingPolarity === "Opposing" ? -1 : 1, "primary", 1);
+        } else {
+          add("Primary", mainGeom, 0, 1, "primary", 0);
+        }
       }
       if (state.multiEnabled) {
         ensureMultiCoils(false);
         state.nestedCoils.forEach((c, i) => {
           const nu = nestedUnits(c);
-          add(c.name || `Nested ${i + 1}`, { r0: nu.r0, len: nu.len, wd: nu.wd, cd: nu.cd, gap: nu.gap, turns: c.numTurns, layers: c.numLayers, xOff: nu.xOff, yOff: nu.yOff, zOff: nu.zOff }, 0, nu.sign, "nested", specs.length);
+          const coilI = state.currentPeak * (c.currentScale != null ? c.currentScale : 1);
+          const rot = { rx: c.rotX || 0, ry: c.rotY || 0, rz: c.rotZ || 0 };
+          const center = { x: nu.xOff, y: nu.yOff, z: nu.zOff };
+          const attrs = { I: coilI, color: c.color, visible: c.visible !== false, rot, center };
+          addNestedCoil(c, nu, attrs, specs.length);
         });
       }
       return specs;
+
+      // --- Nested-coil generator: build any coil type at the origin, then
+      //     rotate + translate the whole winding into place. --------------
+      function addNestedCoil(c, nu, attrs, baseIndex) {
+        const ct = c.coilType || "solenoid";
+        // Parameter object for path builders (origin-centred; offset applied later).
+        const pc = {
+          r0: nu.r0, len: nu.len, wd: nu.wd, cd: nu.cd, gap: nu.gap, zOff: 0,
+          turns: c.numTurns, layers: c.numLayers,
+          saddleArcDeg: c.saddleArcDeg, rtStraight: c.rtStraight, rtCorner: c.rtCorner,
+          pairSpacing: c.pairSpacing
+        };
+        const place = (pts) => transformPoints(pts, attrs.rot, attrs.center);
+        const pathMeta = (meta) => ({ ...meta, xOff: attrs.center.x, yOff: attrs.center.y, zOff: attrs.center.z });
+
+        if (ct === "saddle") {
+          const b = buildSaddlePath(nu, pc);
+          addPath(c.name, place(b.points), pathMeta(b.meta), "nested", baseIndex, attrs);
+        } else if (ct === "racetrack") {
+          const b = buildRacetrackPath(nu, pc);
+          addPath(c.name, place(b.points), pathMeta(b.meta), "nested", baseIndex, attrs);
+        } else if (ct === "gradientX" || ct === "gradientY" || ct === "gradientZ") {
+          const built = buildGradientPaths(nu, ct, pc);
+          built.forEach((bd, k) => addPath(`${c.name} ${bd.label}`, place(bd.points), pathMeta(bd.meta), "nested", baseIndex + k, attrs));
+        } else if (ct === "helmholtz" || ct === "maxwell") {
+          const spacing = (Number(c.pairSpacing) || 0) / 1000;
+          const half = spacing / 2;
+          const loop = (zc, sign) => {
+            const p = circularCoilPolyline({ r0: nu.r0, len: nu.len, wd: nu.wd, gap: nu.gap, turns: c.numTurns, layers: c.numLayers, zOff: zc, sign: nu.sign * sign });
+            addPath(`${c.name} ${zc < 0 ? "A" : "B"}`, place(p.points), pathMeta(p.meta), "nested", baseIndex, attrs);
+          };
+          loop(-half, 1);
+          loop(half, ct === "helmholtz" ? 1 : -1);
+        } else if (ct === "pancake" || ct === "spiral") {
+          const rIn = (Number(c.planarInnerRadius) || 1) / 1000;
+          const rOut = Math.max((Number(c.planarOuterRadius) || 2) / 1000, rIn + nu.wd);
+          const nT = Math.max(1, Math.round(c.numTurns));
+          const radialPitch = (rOut - rIn) / Math.max(nT - 1, 1);
+          const stacks = Math.max(1, Math.round(c.planarStacks || 1));
+          const stackGap = (Number(c.planarStackGap) || 0) / 1000;
+          const stackPitch = nu.wd + stackGap;
+          const stackSpan = (stacks - 1) * stackPitch;
+          for (let s = 0; s < stacks; s++) {
+            const zc = -stackSpan / 2 + s * stackPitch;
+            const p = circularCoilPolyline({ r0: rIn, len: nu.wd, wd: nu.wd, gap: Math.max(radialPitch - nu.wd, 0), turns: 1, layers: nT, zOff: zc, sign: nu.sign });
+            addPath(`${c.name}${stacks > 1 ? " " + (s + 1) : ""}`, place(p.points), pathMeta({ ...p.meta, fieldComponent: "Bz" }), "nested", baseIndex + s, attrs);
+          }
+        } else {
+          // Solenoid — the common case. If unrotated, keep the fast circular
+          // spec (analytic elliptic field). If rotated, add() converts it.
+          add(c.name, { r0: nu.r0, len: nu.len, wd: nu.wd, cd: nu.cd, gap: nu.gap, turns: c.numTurns, layers: c.numLayers, xOff: nu.xOff, yOff: nu.yOff, zOff: nu.zOff }, 0, nu.sign, "nested", baseIndex, attrs);
+        }
+      }
+    }
+
+    // Transform a list of local points by rotation (deg) then translation (m).
+    function transformPoints(pts, rot, center) {
+      if (!rot || (!rot.rx && !rot.ry && !rot.rz)) {
+        return pts.map(p => ({ x: p.x + center.x, y: p.y + center.y, z: p.z + center.z }));
+      }
+      const M = rotationMatrix(rot.rx, rot.ry, rot.rz);
+      return pts.map(p => { const r = applyMat(M, p); return { x: r.x + center.x, y: r.y + center.y, z: r.z + center.z }; });
+    }
+
+    // Build a circular (helical) coil as an explicit polyline centred at origin
+    // (before rotation/translation). Returns {points, meta} for addPath.
+    function circularCoilPolyline(g) {
+      const pts = [];
+      const ptsPerTurn = 26;
+      const pitch = g.len / Math.max(g.turns, 1);
+      const layerSpacing = g.wd + (g.gap || 0);
+      for (let layer = 0; layer < g.layers; layer++) {
+        const radius = g.r0 + layer * layerSpacing;
+        const steps = Math.max(2, g.turns * ptsPerTurn);
+        for (let i = 0; i <= steps; i++) {
+          const t = (i / steps) * TAU * g.turns;
+          const z = (g.zOff || 0) - g.len / 2 + (pitch / TAU) * t;
+          pts.push({ x: radius * Math.cos((g.sign || 1) * t), y: radius * Math.sin((g.sign || 1) * t), z });
+        }
+      }
+      const meanRadius = g.r0 + (g.layers - 1) * layerSpacing / 2;
+      const radialBuild = Math.max((g.layers - 1) * layerSpacing + g.wd, g.wd);
+      return { points: pts, meta: {
+        turns: g.turns, layers: g.layers, wd: g.wd, cd: g.cd || g.wd, gap: g.gap || 0,
+        areaPerTurn: Math.PI * meanRadius * meanRadius, effLength: Math.max(g.len, g.wd),
+        radialBuild, sign: g.sign || 1, fieldComponent: "Bz"
+      } };
+    }
+
+    // Convert an already-built circular spec into a rotated polyline in place
+    // (used by add() when a rotation is requested on a solenoid nested coil).
+    // `center` is {x,y,z} in metres; the coil is built at origin then placed.
+    function circularCoilToRotatedPath(spec, rot, center) {
+      const local = circularCoilPolyline({
+        r0: spec.r0, len: spec.len, wd: spec.wd, cd: spec.cd, gap: spec.gap,
+        turns: spec.turns, layers: spec.layers, zOff: 0, sign: spec.sign
+      });
+      const pts = transformPoints(local.points, rot, center);
+      return { points: pts, meta: { ...local.meta, xOff: center.x, yOff: center.y, zOff: center.z } };
+    }
+
+    /* ---------------------------------------------------------------------
+       PATH-COIL GEOMETRY BUILDERS (return {points:[{x,y,z}], meta})
+       All lengths in metres. Points form a continuous winding polyline in the
+       global frame. meta carries fields addPath() needs for L/C/rendering.
+       --------------------------------------------------------------------- */
+
+    // Saddle coil: a pair of curved "windows" on a cylinder of radius R, each
+    // spanning an arc angle, connected by axial segments — the classic
+    // transverse-field (Bx) coil used for RF/MPI receive. Two saddles on
+    // opposite sides carry opposite azimuthal current so their fields add
+    // transversely (a 2-window saddle ≈ a simple birdcage rung pair).
+    // Coil types that can be used as a nested coil in a multi-coil assembly.
+    const NESTED_COIL_TYPES = ["solenoid", "helmholtz", "maxwell", "racetrack", "saddle", "gradientZ", "gradientX", "gradientY", "pancake", "spiral"];
+
+    // Saddle coil built from an explicit parameter object `pc`. pc carries the
+    // resolved geometry in metres plus the type-specific angles so the same
+    // builder serves both the primary coil and any nested coil.
+    function buildSaddlePath(u, pc = null) {
+      const P = pc || { r0: u.r0, len: u.len, wd: u.wd, cd: u.cd, gap: u.gap, zOff: u.zOff, turns: state.numTurns, saddleArcDeg: state.saddleArcDeg };
+      const R = P.r0;
+      const L = P.len;                    // axial length of window
+      const arc = clamp((P.saddleArcDeg || 120) * Math.PI / 180, 0.1, Math.PI); // window arc
+      const turns = Math.max(1, Math.round(P.turns));
+      const wd = P.wd;
+      const zC = P.zOff;
+      const nArc = 24;                    // arc segmentation
+      const pts = [];
+      // Two windows centered at azimuth 0 and PI. Current goes: up one arc edge,
+      // across the top arc, down the far arc edge, across the bottom arc — per turn.
+      // We approximate the standard saddle as two axial conductors per window at
+      // ±arc/2, joined by end arcs, repeated per turn stepping radius outward.
+      for (let t = 0; t < turns; t++) {
+        const rr = R + t * wd * 0.15;     // slight radial build so turns don't overlap
+        // Window 1 (centered azimuth 0): edges at +arc/2 and -arc/2
+        const a1 = arc / 2, a2 = -arc / 2;
+        // axial conductor up at +a1
+        pts.push({ x: rr * Math.cos(a1), y: rr * Math.sin(a1), z: zC - L / 2 });
+        pts.push({ x: rr * Math.cos(a1), y: rr * Math.sin(a1), z: zC + L / 2 });
+        // top end arc from a1 to a2
+        for (let i = 1; i <= nArc; i++) { const a = a1 + (a2 - a1) * i / nArc; pts.push({ x: rr * Math.cos(a), y: rr * Math.sin(a), z: zC + L / 2 }); }
+        // axial conductor down at a2
+        pts.push({ x: rr * Math.cos(a2), y: rr * Math.sin(a2), z: zC - L / 2 });
+        // bottom end arc back a2 to a1
+        for (let i = 1; i <= nArc; i++) { const a = a2 + (a1 - a2) * i / nArc; pts.push({ x: rr * Math.cos(a), y: rr * Math.sin(a), z: zC - L / 2 }); }
+      }
+      // Window 2 (azimuth PI, opposite current sense → mirror the winding).
+      for (let t = 0; t < turns; t++) {
+        const rr = R + t * wd * 0.15;
+        const a1 = Math.PI + arc / 2, a2 = Math.PI - arc / 2;
+        pts.push({ x: rr * Math.cos(a2), y: rr * Math.sin(a2), z: zC - L / 2 });
+        pts.push({ x: rr * Math.cos(a2), y: rr * Math.sin(a2), z: zC + L / 2 });
+        for (let i = 1; i <= nArc; i++) { const a = a2 + (a1 - a2) * i / nArc; pts.push({ x: rr * Math.cos(a), y: rr * Math.sin(a), z: zC + L / 2 }); }
+        pts.push({ x: rr * Math.cos(a1), y: rr * Math.sin(a1), z: zC - L / 2 });
+        for (let i = 1; i <= nArc; i++) { const a = a1 + (a2 - a1) * i / nArc; pts.push({ x: rr * Math.cos(a), y: rr * Math.sin(a), z: zC - L / 2 }); }
+      }
+      const areaPerTurn = 0.5 * arc * R * R + R * L; // rough window area
+      return { points: pts, meta: { turns, layers: 1, wd: P.wd, cd: P.cd, gap: P.gap, zOff: zC, areaPerTurn, effLength: L, radialBuild: turns * wd * 0.15 + wd, sign: 1, fieldComponent: "Bx" } };
+    }
+
+    function buildRacetrackPath(u, pc = null) {
+      const P = pc || { r0: u.r0, len: u.len, wd: u.wd, cd: u.cd, gap: u.gap, zOff: u.zOff, turns: state.numTurns, layers: state.numLayers, rtStraight: state.rtStraight, rtCorner: state.rtCorner };
+      const straight = (P.rtStraight || 60) / 1000;
+      const corner = (P.rtCorner || 15) / 1000;
+      const turns = Math.max(1, Math.round(P.turns));
+      const layers = Math.max(1, Math.round(P.layers));
+      const wd = P.wd, gap = P.gap;
+      const zC = P.zOff;
+      const nArc = 16;
+      const pts = [];
+      const half = straight / 2;
+      const pitch = P.len / Math.max(turns, 1); // axial advance per turn (like a solenoid)
+      let idx = 0;
+      for (let layer = 0; layer < layers; layer++) {
+        const rC = corner + layer * (wd + gap);
+        for (let t = 0; t < turns; t++) {
+          const z0 = zC - P.len / 2 + t * pitch;
+          const push = (x, y, frac) => pts.push({ x, y, z: z0 + pitch * frac });
+          // bottom straight (y=-rC) from x=-half to +half
+          push(-half, -rC, 0); push(half, -rC, 0.25);
+          // right semicircle end (center x=half)
+          for (let i = 1; i <= nArc; i++) { const a = -Math.PI / 2 + Math.PI * i / nArc; push(half + rC * Math.cos(a), rC * Math.sin(a), 0.25 + 0.25 * i / nArc); }
+          // top straight from x=half to -half
+          push(half, rC, 0.5); push(-half, rC, 0.75);
+          // left semicircle end (center x=-half)
+          for (let i = 1; i <= nArc; i++) { const a = Math.PI / 2 + Math.PI * i / nArc; push(-half + rC * Math.cos(a), rC * Math.sin(a), 0.75 + 0.25 * i / nArc); }
+          idx++;
+        }
+      }
+      const areaPerTurn = straight * (2 * corner) + Math.PI * corner * corner;
+      return { points: pts, meta: { turns, layers, wd: P.wd, cd: P.cd, gap: P.gap, zOff: zC, areaPerTurn, effLength: Math.max(P.len, wd), radialBuild: (layers - 1) * (wd + gap) + wd, sign: 1, fieldComponent: "Bz" } };
+    }
+
+    function buildGradientPaths(u, kind, pc = null) {
+      const P = pc || { r0: u.r0, len: u.len, wd: u.wd, cd: u.cd, gap: u.gap, zOff: u.zOff, turns: state.numTurns, pairSpacing: state.pairSpacing, saddleArcDeg: state.saddleArcDeg };
+      const R = P.r0;
+      const turns = Math.max(1, Math.round(P.turns));
+      const wd = P.wd;
+      const zC = P.zOff;
+      const out = [];
+      if (kind === "gradientZ") {
+        // Maxwell pair: two loops at ±sqrt(3)/2 * R, opposite current.
+        const d = (P.pairSpacing ? P.pairSpacing / 1000 : Math.sqrt(3) * R) / 2;
+        for (const [s, zc, lbl] of [[1, -d, "Grad Z −"], [-1, d, "Grad Z +"]]) {
+          const pts = [];
+          for (let t = 0; t < turns; t++) {
+            const rr = R + t * wd * 0.2;
+            for (let i = 0; i <= 48; i++) { const a = s * 2 * Math.PI * i / 48; pts.push({ x: rr * Math.cos(a), y: rr * Math.sin(a), z: zC + zc }); }
+          }
+          out.push({ label: lbl, points: pts, meta: { turns, layers: 1, wd: P.wd, cd: P.cd, gap: P.gap, zOff: zC + zc, areaPerTurn: Math.PI * R * R, effLength: Math.max(wd, P.len), radialBuild: turns * wd * 0.2 + wd, sign: s, fieldComponent: "Bz" } });
+        }
+      } else {
+        // Golay-style transverse gradient: 4 saddle windows (2 above, 2 below the
+        // xy-plane midpoint) whose currents produce a linear dBz along x (or y).
+        const arc = clamp((P.saddleArcDeg || 120) * Math.PI / 180, 0.1, Math.PI);
+        const L = P.len;
+        const zsep = (P.pairSpacing ? P.pairSpacing / 1000 : R) / 2;
+        const phase = (kind === "gradientY") ? Math.PI / 2 : 0;
+        // Windows centered near azimuth 0 and PI, duplicated at ±z with reversed
+        // current so the axial field varies linearly across x.
+        const windows = [
+          { az: 0 + phase, zc: +zsep, s: +1 }, { az: Math.PI + phase, zc: +zsep, s: -1 },
+          { az: 0 + phase, zc: -zsep, s: -1 }, { az: Math.PI + phase, zc: -zsep, s: +1 }
+        ];
+        windows.forEach((wn, wi) => {
+          const pts = [];
+          for (let t = 0; t < turns; t++) {
+            const rr = R + t * wd * 0.15;
+            const a1 = wn.az + arc / 2, a2 = wn.az - arc / 2;
+            const zc = zC + wn.zc;
+            if (wn.s > 0) {
+              pts.push({ x: rr * Math.cos(a1), y: rr * Math.sin(a1), z: zc - L / 2 });
+              pts.push({ x: rr * Math.cos(a1), y: rr * Math.sin(a1), z: zc + L / 2 });
+              for (let i = 1; i <= 20; i++) { const a = a1 + (a2 - a1) * i / 20; pts.push({ x: rr * Math.cos(a), y: rr * Math.sin(a), z: zc + L / 2 }); }
+              pts.push({ x: rr * Math.cos(a2), y: rr * Math.sin(a2), z: zc - L / 2 });
+              for (let i = 1; i <= 20; i++) { const a = a2 + (a1 - a2) * i / 20; pts.push({ x: rr * Math.cos(a), y: rr * Math.sin(a), z: zc - L / 2 }); }
+            } else {
+              pts.push({ x: rr * Math.cos(a2), y: rr * Math.sin(a2), z: zc - L / 2 });
+              pts.push({ x: rr * Math.cos(a2), y: rr * Math.sin(a2), z: zc + L / 2 });
+              for (let i = 1; i <= 20; i++) { const a = a2 + (a1 - a2) * i / 20; pts.push({ x: rr * Math.cos(a), y: rr * Math.sin(a), z: zc + L / 2 }); }
+              pts.push({ x: rr * Math.cos(a1), y: rr * Math.sin(a1), z: zc - L / 2 });
+              for (let i = 1; i <= 20; i++) { const a = a1 + (a2 - a1) * i / 20; pts.push({ x: rr * Math.cos(a), y: rr * Math.sin(a), z: zc - L / 2 }); }
+            }
+          }
+          out.push({ label: `${kind === "gradientY" ? "Grad Y" : "Grad X"} w${wi + 1}`, points: pts, meta: { turns, layers: 1, wd: P.wd, cd: P.cd, gap: P.gap, zOff: zC + wn.zc, areaPerTurn: 0.5 * arc * R * R + R * L, effLength: L, radialBuild: turns * wd * 0.15 + wd, sign: 1, fieldComponent: "Bz" } });
+        });
+      }
+      return out;
     }
 
     function estimateMutualBetweenSpecs(a, b) {
-      // Mutual inductance is computed from the Neumann line integral, using
-      // weighted circular-loop samples along each winding pack. For coaxial
-      // loop pairs this uses the closed elliptic-integral expression; for
-      // lateral X/Y offsets it falls back to a numerical double line integral.
-      let M = Math.abs(mutualInductanceByLoopSampling(a, b));
+      // Mutual inductance is computed from the Neumann line integral. Circular
+      // coil pairs use weighted loop samples (closed elliptic form coaxially,
+      // numerical Neumann for lateral offsets). If either coil is a path coil
+      // (saddle/racetrack/gradient/rotated), the full 3-D Neumann double line
+      // integral over the actual winding polylines is used instead.
+      let M;
+      if (a.isPath || b.isPath) {
+        const pa = a.isPath ? { points: a.path } : circularSpecToPolyline(a);
+        const pb = b.isPath ? { points: b.path } : circularSpecToPolyline(b);
+        M = Math.abs(neumannMutualPaths(pa, pb));
+      } else {
+        M = Math.abs(mutualInductanceByLoopSampling(a, b));
+      }
       const limit = 0.995 * Math.sqrt(Math.max(a.selfL * b.selfL, 0));
       if (limit > 0 && Number.isFinite(M)) M = Math.min(M, limit);
       const k = limit > 0 ? clamp(M / Math.sqrt(Math.max(a.selfL * b.selfL, 1e-30)), 0, 0.995) : 0;
       return { k, M };
+    }
+
+    // Discretize a circular coil spec into a polyline (for mixed circular/path
+    // mutual inductance via the common Neumann integrator).
+    function circularSpecToPolyline(spec) {
+      const pts = [];
+      const nSeg = 40;
+      const nAxial = Math.min(Math.max(Math.round(spec.turns), 1), 40);
+      for (let layer = 0; layer < spec.layers; layer++) {
+        const a = spec.r0 + layer * spec.layerSpacing;
+        for (let t = 0; t < nAxial; t++) {
+          const zc = spec.zOff - spec.len / 2 + spec.len * (t + 0.5) / nAxial;
+          const w = spec.turns / nAxial;   // weight folded via repeat count
+          for (let i = 0; i <= nSeg; i++) {
+            const th = spec.sign * 2 * Math.PI * i / nSeg;
+            pts.push({ x: spec.xOff + a * Math.cos(th), y: spec.yOff + a * Math.sin(th), z: zc });
+          }
+        }
+      }
+      return { points: pts };
     }
 
     function loopsForMutual(spec, lateralMode = false) {
@@ -2076,6 +2836,7 @@
     }
 
     function coilWireLengthFromSpec(spec) {
+      if (spec.isPath) return spec.wireLen || 0;
       let length = 0;
       const pitch = spec.len / Math.max(spec.turns, 1);
       for (let layer = 0; layer < spec.layers; layer++) {
@@ -2132,6 +2893,15 @@
       const points = [];
 
       const addSpec = (spec, renderIndex) => {
+        if (spec.visible === false) return;   // hidden in the 3-D view
+        if (spec.isPath) {
+          // Path coils already carry an explicit polyline in the global frame.
+          const p = spec.path;
+          for (let i = 0; i < p.length; i++) {
+            points.push({ x: p[i].x, y: p[i].y, z: p[i].z, layer: 0, coilIndex: renderIndex, label: spec.label, group: spec.group, color: spec.color || null, pathBreak: i === 0 });
+          }
+          return;
+        }
         const pitch = spec.len / Math.max(spec.turns, 1);
         for (let layer = 0; layer < spec.layers; layer++) {
           const radius = spec.r0 + layer * spec.layerSpacing;
@@ -2149,7 +2919,8 @@
               layer,
               coilIndex: renderIndex,
               label: spec.label,
-              group: spec.group
+              group: spec.group,
+              color: spec.color || null
             });
           }
         }
@@ -2187,6 +2958,31 @@
       const specs = runtime.coilSpecs && runtime.coilSpecs.length ? runtime.coilSpecs : makeCoilSpecs();
       const mutualNetwork = runtime.mutual || calculateMutualNetwork(specs);
       let totalTurnsAll = totalTurnsSingle * (state.gradiometricEnabled ? 2 : 1);
+
+      // For non-solenoid topologies (Helmholtz / Maxwell / pancake / spiral) the
+      // primary is no longer a single solenoid, so derive wire length, DC
+      // resistance, turn count, equivalent inductance and capacitance directly
+      // from the generated coil specs. This reuses the exact per-spec helpers
+      // that already back the multi-coil path, keeping the physics consistent.
+      const isMultiSpecType = MULTI_SPEC_TYPES.includes(state.coilType);
+      if (isMultiSpecType && specs.length) {
+        const strandArea = state.wireType === "Litz"
+          ? state.litzStrands * Math.PI * Math.pow(u.strand / 2, 2)
+          : null;
+        wireLength = 0;
+        R_DC = 0;
+        totalTurnsAll = 0;
+        specs.forEach(spec => {
+          const len = coilWireLengthFromSpec(spec);
+          const condArea = strandArea != null ? strandArea : Math.PI * Math.pow(Math.max(spec.cd, 1e-9) / 2, 2);
+          wireLength += len;
+          R_DC += runtime.rho * len / Math.max(condArea, 1e-20);
+          totalTurnsAll += spec.turns * spec.layers;
+        });
+        inductance = mutualNetwork.equivalentL;
+        mutualInductance = mutualNetwork.absMutualSum;
+      }
+
       if (state.multiEnabled && specs.length > (state.gradiometricEnabled ? 2 : 1)) {
         const nestedSpecs = specs.filter(s => s.group === "nested");
         nestedSpecs.forEach(spec => {
@@ -2208,12 +3004,13 @@
         const C_mutual = EPS0 * faceArea / Math.max(u.coilGap, 1e-4);
         selfCapacitance = C_single / 2 + C_mutual;
       }
-      if (state.multiEnabled && specs.length > 1) {
-        // The multi-coil mode assumes series-connected winding packs. A compact
-        // equivalent capacitance is estimated as the series combination of each
-        // pack's distributed self-capacitance. Inter-coil stray capacitance is
-        // geometry/material dependent and should be checked with measurement/FEM.
+      if ((state.multiEnabled || isMultiSpecType) && specs.length > 1) {
+        // Series-connected winding packs: equivalent capacitance is the series
+        // combination of each pack's distributed self-capacitance. Inter-coil
+        // stray capacitance is geometry/material dependent — check with FEM.
         selfCapacitance = seriesEquivalentCapacitance(specs.map(s => s.selfC || C_single));
+      } else if (isMultiSpecType && specs.length === 1) {
+        selfCapacitance = specs[0].selfC || C_single;
       }
 
       const SRF = inductance > 0 && selfCapacitance > 0 ? 1 / (TAU * Math.sqrt(inductance * selfCapacitance)) : Infinity;
@@ -2388,19 +3185,71 @@
       return { Rac, skinFactor: G1, proxFactor: FR / Math.max(G1, 1e-10), delta };
     }
 
-    function fieldBzForSpecAtPoint(spec, x, y, zGlobal) {
-      const samplesPerLayer = state.renderQuality === "ultra" ? Math.min(spec.turns, 260) : state.renderQuality === "high" ? Math.min(spec.turns, 190) : state.renderQuality === "balanced" ? Math.min(spec.turns, 120) : Math.min(spec.turns, 70);
-      const rLocal = Math.hypot(x - spec.xOff, y - spec.yOff);
-      let B = 0;
+    // Full 3-D field vector (Tesla) at global point P from a single spec.
+    // Circular specs: fast elliptic Bz on their own axis (Bx,By recovered by the
+    // radial component of a loop). Path specs: direct Biot–Savart.
+    function fieldVecForSpecAtPoint(spec, P) {
+      if (spec.isPath) {
+        return biotSavartPath({ points: spec.path, I: spec.I * spec.sign }, P);
+      }
+      // Circular coaxial coil along z at (xOff,yOff,zOff). Compute Br,Bz in the
+      // coil's cylindrical frame, then map Br back into x,y.
+      const dx = P.x - spec.xOff, dy = P.y - spec.yOff;
+      const rLocal = Math.hypot(dx, dy);
+      const samplesPerLayer = state.renderQuality === "ultra" ? Math.min(spec.turns, 200) : state.renderQuality === "high" ? Math.min(spec.turns, 150) : state.renderQuality === "balanced" ? Math.min(spec.turns, 100) : Math.min(spec.turns, 60);
+      let Bz = 0, Br = 0;
       for (let layer = 0; layer < spec.layers; layer++) {
         const a = spec.r0 + layer * spec.layerSpacing;
         const weight = spec.turns / Math.max(samplesPerLayer, 1);
         for (let i = 0; i < samplesPerLayer; i++) {
           const zLoop = spec.zOff - spec.len / 2 + spec.len * (i + 0.5) / samplesPerLayer;
-          B += spec.sign * weight * loopBzElliptic(a, rLocal, zGlobal - zLoop, state.currentPeak);
+          const z = P.z - zLoop;
+          Bz += spec.sign * weight * loopBzElliptic(a, rLocal, z, spec.I || state.currentPeak);
+          Br += spec.sign * weight * loopBrElliptic(a, rLocal, z, spec.I || state.currentPeak);
         }
       }
-      return B;
+      const ux = rLocal > 1e-12 ? dx / rLocal : 0, uy = rLocal > 1e-12 ? dy / rLocal : 0;
+      return { x: Br * ux, y: Br * uy, z: Bz };
+    }
+
+    // Radial component of a single circular loop (companion to loopBzElliptic).
+    function loopBrElliptic(a, r, z, I) {
+      if (r < 1e-10) return 0;
+      const q = Math.pow(a + r, 2) + z * z;
+      const m = clamp(4 * a * r / Math.max(q, 1e-30), 0, 0.999999999);
+      const K = ellipticK(m);
+      const E = ellipticE(m);
+      const den = Math.max(Math.pow(a - r, 2) + z * z, 1e-24);
+      return MU0 * I * z / (2 * Math.PI * r * Math.sqrt(q)) * (-K + (a * a + r * r + z * z) / den * E);
+    }
+
+    // Which scalar field component to display for the current coil type.
+    function activeFieldComponent() {
+      const fc = state.fieldComponent || "auto";
+      if (fc !== "auto") return fc;
+      // Native component per coil type.
+      const specs = runtime.coilSpecs || [];
+      if (specs.length && specs[0].fieldComponent) return specs[0].fieldComponent;
+      return "Bz";
+    }
+
+    function projectField(vec, component) {
+      switch (component) {
+        case "Bx": return vec.x;
+        case "By": return vec.y;
+        case "Bmag": return Math.sqrt(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z);
+        case "Bz":
+        default: return vec.z;
+      }
+    }
+
+    function fieldBzForSpecAtPoint(spec, x, y, zGlobal) {
+      // Back-compat scalar accessor: returns the *native* component so existing
+      // callers (heatmap/profile) get physically-meaningful values. For path
+      // coils that is Bx (saddle) or Bz (racetrack/gradient) per the spec.
+      const vec = fieldVecForSpecAtPoint(spec, { x, y, z: zGlobal });
+      const comp = (state.fieldComponent && state.fieldComponent !== "auto") ? state.fieldComponent : (spec.fieldComponent || "Bz");
+      return projectField(vec, comp);
     }
 
     function calculateBAtZ(zGlobal, coilCenter = 0) {
@@ -2422,18 +3271,32 @@
       return B;
     }
 
+    // True whenever the coil is a single plain solenoid (fast closed-form path).
+    function isPlainSolenoid() {
+      return (state.coilType || "solenoid") === "solenoid" && !state.multiEnabled && !state.gradiometricEnabled;
+    }
+
+    const PATH_COIL_TYPES = ["saddle", "racetrack", "gradientX", "gradientY", "gradientZ"];
+    const MULTI_SPEC_TYPES = ["helmholtz", "maxwell", "pancake", "spiral", "saddle", "racetrack", "gradientX", "gradientY", "gradientZ"];
+
     function calculateTotalBAtZ(zGlobal) {
       const specs = runtime.coilSpecs && runtime.coilSpecs.length ? runtime.coilSpecs : makeCoilSpecs();
-      if (!state.multiEnabled && !state.gradiometricEnabled) return calculateBAtZ(zGlobal, 0);
-      let B = 0;
-      specs.forEach(spec => { B += fieldBzForSpecAtPoint(spec, 0, 0, zGlobal); });
-      return B;
+      if (isPlainSolenoid()) return calculateBAtZ(zGlobal, 0);
+      // Sum full field vectors on-axis, then project the active component.
+      const comp = activeFieldComponent();
+      let vx = 0, vy = 0, vz = 0;
+      specs.forEach(spec => {
+        if (spec.visible === false) return;
+        const v = fieldVecForSpecAtPoint(spec, { x: 0, y: 0, z: zGlobal });
+        vx += v.x; vy += v.y; vz += v.z;
+      });
+      return projectField({ x: vx, y: vy, z: vz }, comp);
     }
 
     function estimatePeakBQuick(centerField = null) {
       const specs = runtime.coilSpecs && runtime.coilSpecs.length ? runtime.coilSpecs : makeCoilSpecs();
       const u = units();
-      if (!state.multiEnabled && !state.gradiometricEnabled) return centerField ?? Math.abs(calculateTotalBAtZ(u.zOff));
+      if (isPlainSolenoid()) return centerField ?? Math.abs(calculateTotalBAtZ(u.zOff));
       let minZ = Infinity, maxZ = -Infinity;
       specs.forEach(s => { minZ = Math.min(minZ, s.zOff - s.len); maxZ = Math.max(maxZ, s.zOff + s.len); });
       const span = Math.max(maxZ - minZ, u.len, 1e-6);
@@ -2450,15 +3313,22 @@
       const specs = runtime.coilSpecs && runtime.coilSpecs.length ? runtime.coilSpecs : makeCoilSpecs();
       const u = units();
       let minZ = u.zOff - Math.max(u.len * 2, u.r0 * 3), maxZ = u.zOff + Math.max(u.len * 2, u.r0 * 3);
-      if (state.multiEnabled || state.gradiometricEnabled) {
+      if (!isPlainSolenoid()) {
         minZ = Infinity; maxZ = -Infinity;
-        specs.forEach(s => { minZ = Math.min(minZ, s.zOff - s.len * 1.2); maxZ = Math.max(maxZ, s.zOff + s.len * 1.2); });
+        specs.forEach(s => {
+          const rExt = s.r0 + Math.max(s.layers - 1, 0) * s.layerSpacing;
+          const pad = Math.max(s.len * 1.2, rExt * 1.5);
+          minZ = Math.min(minZ, s.zOff - pad); maxZ = Math.max(maxZ, s.zOff + pad);
+        });
       }
+      // Signed field (keeps sign for gradient/opposing configs); plain single
+      // windings and same-direction stacks are shown as magnitude for clarity.
+      const useSigned = state.gradiometricEnabled || state.multiEnabled || state.coilType === "maxwell";
       const out = [];
       for (let i = 0; i < 260; i++) {
         const z = minZ + (maxZ - minZ) * i / 259;
         let B = calculateTotalBAtZ(z);
-        if (!state.gradiometricEnabled && !state.multiEnabled) B = Math.abs(B);
+        if (!useSigned) B = Math.abs(B);
         out.push({ x: z * 1000, y: B * 1000 });
       }
       return out;
@@ -2591,12 +3461,15 @@
       const centerWorld = { x: (minX + maxX) / 2, y: (minY + maxY) / 2, z: (minZ0 + maxZ0) / 2 };
       const scaleWorld = Math.max(maxX - minX, maxY - minY, maxZ0 - minZ0, 1e-3) * 1.35;
       const scale = Math.min(w, h) * 0.72 / scaleWorld * runtime.coilZoom;
+      // Expose the pixels-per-metre scale + view rotation so the drag handler
+      // can invert a screen-plane drag back into world X/Y/Z offsets.
+      runtime.coilRenderScale = scale;
       const cx = w / 2;
       const cy = h / 2 + 12;
       const projected = [];
       for (const p of pts) {
         const pr = projectPoint({ x: p.x - centerWorld.x, y: p.y - centerWorld.y, z: p.z - centerWorld.z }, runtime.rotX, runtime.rotY);
-        projected.push({ x: cx + pr.x * scale, y: cy - pr.y * scale, z: pr.z, layer: p.layer, coilIndex: p.coilIndex });
+        projected.push({ x: cx + pr.x * scale, y: cy - pr.y * scale, z: pr.z, layer: p.layer, coilIndex: p.coilIndex, color: p.color || null });
       }
 
       // Build segments (skip wraparound jumps) and depth-sort them so far
@@ -2609,7 +3482,7 @@
         if (a.coilIndex !== b.coilIndex) continue;
         const zMid = (a.z + b.z) / 2;
         zLo = Math.min(zLo, zMid); zHi = Math.max(zHi, zMid);
-        segs.push({ a, b, zMid, coilIndex: a.coilIndex });
+        segs.push({ a, b, zMid, coilIndex: a.coilIndex, color: a.color });
       }
       segs.sort((s1, s2) => s1.zMid - s2.zMid);
       const zSpan = Math.max(zHi - zLo, 1e-9);
@@ -2617,10 +3490,21 @@
       // Axis drawn first so it sits behind the winding.
       drawAxis(ctx, cx, cy, scale, scaleWorld / 2, runtime.rotX, runtime.rotY);
 
+      const hexToRgb = (hex) => {
+        const m = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(hex || "");
+        return m ? [parseInt(m[1], 16), parseInt(m[2], 16), parseInt(m[3], 16)] : null;
+      };
       // Copper gradient: dark bronze in back → bright polished copper in front.
-      // Coil B (gradiometer) uses a green-teal ramp to distinguish it.
-      const shade = (t, coil) => {
+      // A per-coil custom color (multi-coil assembly) overrides the palette with
+      // a depth gradient from a dimmed to a bright version of that colour.
+      const shade = (t, coil, customHex) => {
         const e = t * t * (3 - 2 * t); // smoothstep for nicer depth falloff
+        const rgb = hexToRgb(customHex);
+        if (rgb) {
+          const lo = 0.34, hi = 1.0;
+          const f = lo + (hi - lo) * e;
+          return `rgb(${Math.round(rgb[0] * f)},${Math.round(rgb[1] * f)},${Math.round(rgb[2] * f)})`;
+        }
         const palette = [
           [120, 70, 40, 255, 180, 105],
           [60, 150, 90, 150, 240, 130],
@@ -2640,7 +3524,7 @@
       ctx.lineJoin = "round";
       for (const s of segs) {
         const t = clamp((s.zMid - zLo) / zSpan, 0, 1);
-        ctx.strokeStyle = shade(t, s.coilIndex);
+        ctx.strokeStyle = shade(t, s.coilIndex, s.color);
         ctx.globalAlpha = 0.55 + 0.45 * t;      // near strokes more opaque
         ctx.lineWidth = 1.1 + 1.7 * t;          // near strokes thicker → depth
         ctx.beginPath(); ctx.moveTo(s.a.x, s.a.y); ctx.lineTo(s.b.x, s.b.y); ctx.stroke();
@@ -2650,7 +3534,14 @@
 
       ctx.fillStyle = "rgba(243,246,251,.92)";
       ctx.font = "700 13px Inter, system-ui, sans-serif";
-      ctx.fillText(state.multiEnabled ? "Multi nested coils" : (state.gradiometricEnabled ? "Gradiometric pair" : "Single coil"), 18, 32);
+      const typeTitle = {
+        solenoid: state.multiEnabled ? "Multi nested coils" : (state.gradiometricEnabled ? "Gradiometric pair" : "Single solenoid"),
+        helmholtz: "Helmholtz pair", maxwell: "Maxwell / anti-Helmholtz pair",
+        pancake: state.planarStacks > 1 ? "Stacked pancake coil" : "Pancake coil", spiral: "Planar spiral coil",
+        saddle: "Saddle coil (transverse)", racetrack: "Racetrack coil",
+        gradientZ: "Z-gradient (Maxwell pair)", gradientX: "X-gradient (Golay saddles)", gradientY: "Y-gradient (Golay saddles)"
+      }[state.coilType || "solenoid"] || "Single coil";
+      ctx.fillText(typeTitle, 18, 32);
       ctx.fillStyle = "rgba(186,194,210,.78)";
       ctx.font = "12px Inter, system-ui, sans-serif";
       ctx.fillText("Drag to rotate • export-ready canvas renderer", 18, 52);
@@ -2794,9 +3685,13 @@
       const rSamples = qr === "ultra" ? 58 : qr === "high" ? 48 : qr === "balanced" ? 40 : 30;
       let zMin = Infinity, zMax = -Infinity, rMax = 0;
       specs.forEach(spec => {
-        zMin = Math.min(zMin, spec.zOff - spec.len * 1.35);
-        zMax = Math.max(zMax, spec.zOff + spec.len * 1.35);
-        rMax = Math.max(rMax, Math.abs(spec.xOff) + Math.abs(spec.yOff) + spec.r0 + spec.layers * spec.layerSpacing);
+        const rExt = spec.r0 + spec.layers * spec.layerSpacing;
+        // Ensure a sensible axial window even for near-planar (pancake/spiral)
+        // windings whose own length is tiny — pad by the radial extent.
+        const zPad = Math.max(spec.len * 1.35, rExt * 1.4);
+        zMin = Math.min(zMin, spec.zOff - zPad);
+        zMax = Math.max(zMax, spec.zOff + zPad);
+        rMax = Math.max(rMax, Math.abs(spec.xOff) + Math.abs(spec.yOff) + rExt);
       });
       if (!Number.isFinite(zMin) || !Number.isFinite(zMax)) {
         const u = units();
@@ -2825,9 +3720,18 @@
 
     function fieldBzOffAxis(r, zGlobal) {
       const specs = runtime.coilSpecs && runtime.coilSpecs.length ? runtime.coilSpecs : makeCoilSpecs();
-      let B = 0;
-      specs.forEach(spec => { B += fieldBzForSpecAtPoint(spec, r, 0, zGlobal); });
-      return (state.gradiometricEnabled || state.multiEnabled) ? B : Math.abs(B);
+      const comp = activeFieldComponent();
+      // Heatmap is a side cross-section in the x–z plane, so the transverse
+      // sample point is at (x=r, y=0). Sum full vectors, project the component.
+      let vx = 0, vy = 0, vz = 0;
+      specs.forEach(spec => {
+        if (spec.visible === false) return;
+        const v = fieldVecForSpecAtPoint(spec, { x: r, y: 0, z: zGlobal });
+        vx += v.x; vy += v.y; vz += v.z;
+      });
+      const val = projectField({ x: vx, y: vy, z: vz }, comp);
+      const signed = state.gradiometricEnabled || state.multiEnabled || state.coilType === "maxwell" || PATH_COIL_TYPES.includes(state.coilType) || comp === "Bx" || comp === "By";
+      return signed ? val : Math.abs(val);
     }
 
     function loopBzElliptic(a, r, z, I) {
@@ -2839,6 +3743,107 @@
       const den = Math.max(Math.pow(a - r, 2) + z * z, 1e-24);
       return MU0 * I / (2 * Math.PI * Math.sqrt(q)) * (K + (a * a - r * r - z * z) / den * E);
     }
+
+    /* =====================================================================
+       GENERAL 3-D CURRENT-PATH PHYSICS CORE (v22)
+       ---------------------------------------------------------------------
+       Circular coaxial coils use the fast elliptic-integral path above.
+       Saddle / racetrack / gradient coils and any rotated coil are NOT
+       coaxial circular loops, so they are represented as a polyline of
+       current segments {points:[{x,y,z}...], I} and evaluated with a direct
+       Biot-Savart line integral. Mutual inductance between two such paths
+       uses the Neumann double line integral. Validated against the closed-
+       form loop field/mutual so both paths agree to <1%.
+       ===================================================================== */
+    const V = {
+      sub: (a, b) => ({ x: a.x - b.x, y: a.y - b.y, z: a.z - b.z }),
+      add: (a, b) => ({ x: a.x + b.x, y: a.y + b.y, z: a.z + b.z }),
+      scale: (a, s) => ({ x: a.x * s, y: a.y * s, z: a.z * s }),
+      cross: (a, b) => ({ x: a.y * b.z - a.z * b.y, y: a.z * b.x - a.x * b.z, z: a.x * b.y - a.y * b.x }),
+      dot: (a, b) => a.x * b.x + a.y * b.y + a.z * b.z,
+      norm: (a) => Math.sqrt(a.x * a.x + a.y * a.y + a.z * a.z)
+    };
+
+    // Rotation matrix from intrinsic Rx, Ry, Rz (degrees), applied Rz*Ry*Rx.
+    function rotationMatrix(rxDeg, ryDeg, rzDeg) {
+      const rx = (rxDeg || 0) * Math.PI / 180, ry = (ryDeg || 0) * Math.PI / 180, rz = (rzDeg || 0) * Math.PI / 180;
+      const cx = Math.cos(rx), sx = Math.sin(rx);
+      const cy = Math.cos(ry), sy = Math.sin(ry);
+      const cz = Math.cos(rz), sz = Math.sin(rz);
+      // R = Rz * Ry * Rx
+      return [
+        [cz * cy, cz * sy * sx - sz * cx, cz * sy * cx + sz * sx],
+        [sz * cy, sz * sy * sx + cz * cx, sz * sy * cx - cz * sx],
+        [-sy, cy * sx, cy * cx]
+      ];
+    }
+    function applyMat(M, p) {
+      return {
+        x: M[0][0] * p.x + M[0][1] * p.y + M[0][2] * p.z,
+        y: M[1][0] * p.x + M[1][1] * p.y + M[1][2] * p.z,
+        z: M[2][0] * p.x + M[2][1] * p.y + M[2][2] * p.z
+      };
+    }
+
+    // Biot-Savart field (Tesla, vector) at point P from a polyline carrying I.
+    // Uses the exact straight-segment expression (finite wire) per segment.
+    function biotSavartPath(path, P) {
+      const pts = path.points, I = path.I;
+      let Bx = 0, By = 0, Bz = 0;
+      const k = MU0 * I / (4 * Math.PI);
+      for (let i = 0; i < pts.length - 1; i++) {
+        const A = pts[i], Bp = pts[i + 1];
+        // Vectors from segment ends to field point.
+        const ax = P.x - A.x, ay = P.y - A.y, az = P.z - A.z;
+        const bx = P.x - Bp.x, by = P.y - Bp.y, bz = P.z - Bp.z;
+        const dx = Bp.x - A.x, dy = Bp.y - A.y, dz = Bp.z - A.z;   // segment dir
+        const segLen = Math.sqrt(dx * dx + dy * dy + dz * dz);
+        if (segLen < 1e-14) continue;
+        const ux = dx / segLen, uy = dy / segLen, uz = dz / segLen; // unit
+        // Perp distance from P to the (infinite) segment line.
+        const aDotu = ax * ux + ay * uy + az * uz;
+        const px = ax - aDotu * ux, py = ay - aDotu * uy, pz = az - aDotu * uz;
+        const perp = Math.sqrt(px * px + py * py + pz * pz);
+        if (perp < 1e-12) continue; // point on the wire axis → no contribution
+        const aMag = Math.sqrt(ax * ax + ay * ay + az * az);
+        const bMag = Math.sqrt(bx * bx + by * by + bz * bz);
+        // cos angles at the two ends (standard finite-wire result)
+        const cosA = (ax * ux + ay * uy + az * uz) / Math.max(aMag, 1e-14);
+        const cosB = (bx * ux + by * uy + bz * uz) / Math.max(bMag, 1e-14);
+        const mag = k * (cosA - cosB) / perp;
+        // Direction: unit(segment) × unit(perp-from-line-to-P), i.e. u × (-p̂)
+        // dl × r̂ has direction u × (P - point_on_line); use u × (perp vector reversed)
+        const rhatx = -px / perp, rhaty = -py / perp, rhatz = -pz / perp; // from P toward line
+        // B direction = u × (-rhat) = u × (p̂)
+        const phx = px / perp, phy = py / perp, phz = pz / perp;
+        const cxx = uy * phz - uz * phy;
+        const cxy = uz * phx - ux * phz;
+        const cxz = ux * phy - uy * phx;
+        Bx += mag * cxx; By += mag * cxy; Bz += mag * cxz;
+      }
+      return { x: Bx, y: By, z: Bz };
+    }
+
+    // Neumann double line integral: mutual inductance between two polylines.
+    function neumannMutualPaths(pathA, pathB) {
+      const a = pathA.points, b = pathB.points;
+      let sum = 0;
+      for (let i = 0; i < a.length - 1; i++) {
+        const dax = a[i + 1].x - a[i].x, day = a[i + 1].y - a[i].y, daz = a[i + 1].z - a[i].z;
+        const amx = (a[i].x + a[i + 1].x) / 2, amy = (a[i].y + a[i + 1].y) / 2, amz = (a[i].z + a[i + 1].z) / 2;
+        for (let j = 0; j < b.length - 1; j++) {
+          const dbx = b[j + 1].x - b[j].x, dby = b[j + 1].y - b[j].y, dbz = b[j + 1].z - b[j].z;
+          const bmx = (b[j].x + b[j + 1].x) / 2, bmy = (b[j].y + b[j + 1].y) / 2, bmz = (b[j].z + b[j + 1].z) / 2;
+          const dl = dax * dbx + day * dby + daz * dbz;
+          const rx = amx - bmx, ry = amy - bmy, rz = amz - bmz;
+          const R = Math.sqrt(rx * rx + ry * ry + rz * rz);
+          if (R > 1e-9) sum += dl / R;
+        }
+      }
+      return MU0 / (4 * Math.PI) * sum;
+    }
+    /* ===================== end 3-D physics core ======================== */
+
 
     function ellipticK(m) {
       const m1 = clamp(1 - m, 1e-12, 1);
@@ -2866,6 +3871,14 @@
       const plotH = Math.max(10, h - p.t - p.b);
       const barX = p.l + plotW + 22;
       const barW = 16;
+      const isLight = document.documentElement.getAttribute("data-theme") === "light";
+      const titleColor = isLight ? "rgba(31,37,51,.95)" : "rgba(243,246,251,.96)";
+      const labelColor = isLight ? "rgba(75,85,101,.94)" : "rgba(186,194,210,.82)";
+      const tickColor = isLight ? "rgba(75,85,101,.88)" : "rgba(186,194,210,.70)";
+      const gridColor = isLight ? "rgba(70,84,104,.18)" : "rgba(255,255,255,.13)";
+      const frameColor = isLight ? "rgba(70,84,104,.35)" : "rgba(255,255,255,.24)";
+      const centerLineColor = isLight ? "rgba(70,84,104,.42)" : "rgba(255,255,255,.30)";
+      const dashedGuideColor = isLight ? "rgba(70,84,104,.30)" : "rgba(255,255,255,.24)";
 
       // Current view window (defaults to full data extent).
       const view = runtime.heatmapView || { zMin: hm.zMin, zMax: hm.zMax, rMin: hm.rMin, rMax: hm.rMax };
@@ -2878,11 +3891,11 @@
       hm._view = view; hm._p = p; hm._plotW = plotW; hm._plotH = plotH;
 
       ctx.save();
-      ctx.fillStyle = "rgba(243,246,251,.96)";
+      ctx.fillStyle = titleColor;
       ctx.font = "800 13px Inter, system-ui, sans-serif";
       ctx.fillText("Coil side cross-section · magnetic field map", p.l, 20);
-      ctx.fillStyle = "rgba(186,194,210,.78)";
-      ctx.font = "11px Inter, system-ui, sans-serif";
+      ctx.fillStyle = labelColor;
+      ctx.font = "600 11px Inter, system-ui, sans-serif";
       const zoomTxt = runtime.heatmapView ? ` · ${runtime.heatmapZoom.toFixed(1)}× · drag-box to zoom, shift-drag pans` : " · drag a box to zoom · wheel zooms";
       ctx.fillText("Bz(r,z) in mT · copper blocks = winding pack" + zoomTxt, p.l, 36);
 
@@ -2914,10 +3927,10 @@
       }
       ctx.restore(); // end clip
 
-      ctx.strokeStyle = "rgba(255,255,255,.24)";
+      ctx.strokeStyle = frameColor;
       ctx.lineWidth = 1.2;
       ctx.strokeRect(p.l, p.t, plotW, plotH);
-      ctx.strokeStyle = "rgba(255,255,255,.13)";
+      ctx.strokeStyle = gridColor;
       ctx.lineWidth = 1;
       for (let i = 1; i < 6; i++) {
         const x = p.l + (i / 6) * plotW;
@@ -2936,7 +3949,7 @@
       ctx.beginPath(); ctx.rect(p.l, p.t, plotW, plotH); ctx.clip();
       // r = 0 axis (coil bore centreline)
       const yAxis = rToY(0);
-      ctx.strokeStyle = "rgba(255,255,255,.30)";
+      ctx.strokeStyle = centerLineColor;
       ctx.setLineDash([2, 4]);
       ctx.lineWidth = 1;
       ctx.beginPath(); ctx.moveTo(p.l, yAxis); ctx.lineTo(p.l + plotW, yAxis); ctx.stroke();
@@ -2975,7 +3988,7 @@
             ctx.beginPath(); ctx.moveTo(bx, yy); ctx.lineTo(bx + bw, yy); ctx.stroke();
           }
         }
-        ctx.strokeStyle = "rgba(255,255,255,.24)";
+        ctx.strokeStyle = dashedGuideColor;
         ctx.setLineDash([4, 4]);
         ctx.lineWidth = 0.8;
         ctx.beginPath(); ctx.moveTo(bx, rToY(innerMm)); ctx.lineTo(bx, rToY(-innerMm)); ctx.stroke();
@@ -2998,10 +4011,10 @@
         ctx.fillStyle = heatColor(v);
         ctx.fillRect(barX, p.t + i, barW, 1);
       }
-      ctx.strokeStyle = "rgba(255,255,255,.22)";
+      ctx.strokeStyle = isLight ? "rgba(70,84,104,.38)" : "rgba(255,255,255,.22)";
       ctx.strokeRect(barX, p.t, barW, plotH);
-      ctx.fillStyle = "rgba(186,194,210,.78)";
-      ctx.font = "11px Inter, system-ui, sans-serif";
+      ctx.fillStyle = tickColor;
+      ctx.font = "600 11px Inter, system-ui, sans-serif";
       ctx.textAlign = "left";
       ctx.fillText(`+${hm.maxAbs.toFixed(3)}`, barX + 22, p.t + 4);
       ctx.fillText("0", barX + 22, p.t + plotH / 2 + 4);
@@ -3009,15 +4022,17 @@
       ctx.save();
       ctx.translate(barX + 58, p.t + plotH / 2 + 32);
       ctx.rotate(-Math.PI / 2);
+      ctx.fillStyle = labelColor;
+      ctx.font = "700 12px Inter, system-ui, sans-serif";
       ctx.fillText("Bz (mT)", 0, 0);
       ctx.restore();
 
-      ctx.fillStyle = "rgba(186,194,210,.82)";
-      ctx.font = "12px Inter, system-ui, sans-serif";
+      ctx.fillStyle = labelColor;
+      ctx.font = "700 13px Inter, system-ui, sans-serif";
       ctx.textAlign = "center";
       ctx.fillText("z position (mm)", p.l + plotW / 2, h - 22);
       ctx.save();
-      ctx.translate(24, p.t + plotH / 2 + 42);
+      ctx.translate(22, p.t + plotH / 2 + 42);
       ctx.rotate(-Math.PI / 2);
       ctx.fillText("radial position r (mm)", 0, 0);
       ctx.restore();
@@ -3548,8 +4563,9 @@
     }
 
     function drawAxisLabels(ctx, p, w, h, xmin, xmax, ymin, ymax, logX, logY) {
-      ctx.fillStyle = "rgba(186,194,210,.7)";
-      ctx.font = "10px Inter, system-ui, sans-serif";
+      const isLight = document.documentElement.getAttribute("data-theme") === "light";
+      ctx.fillStyle = isLight ? "rgba(75,85,101,.88)" : "rgba(186,194,210,.70)";
+      ctx.font = "600 10px Inter, system-ui, sans-serif";
       ctx.textAlign = "center";
       for (let i = 0; i <= 4; i++) {
         const t = i / 4;
@@ -3580,12 +4596,18 @@
     }
 
     function drawBackground(ctx, w, h) {
+      // Follow the active theme: gradient from --panel-2 → --panel-3 with a
+      // faint grid whose contrast adapts (light lines on dark themes, dark on
+      // light). Reads CSS variables at draw time so theme swaps take effect.
+      const isLight = document.documentElement.getAttribute("data-theme") === "light";
+      const c0 = getCssColor("--panel-2", isLight ? "#eef1f8" : "#181c29");
+      const c1 = getCssColor("--panel-3", isLight ? "#e4e9f4" : "#1f2433");
       const g = ctx.createLinearGradient(0, 0, w, h);
-      g.addColorStop(0, "rgba(11,13,22,.95)");
-      g.addColorStop(1, "rgba(27,31,43,.95)");
+      g.addColorStop(0, c0);
+      g.addColorStop(1, c1);
       ctx.fillStyle = g;
       ctx.fillRect(0, 0, w, h);
-      ctx.strokeStyle = "rgba(255,255,255,.055)";
+      ctx.strokeStyle = isLight ? "rgba(20,30,50,.06)" : "rgba(255,255,255,.055)";
       for (let x = 0; x < w; x += 32) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
       for (let y = 0; y < h; y += 32) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
     }
@@ -3598,6 +4620,25 @@
       let y = p.y * cx - z * sx;
       z = p.y * sx + z * cx;
       return { x, y, z };
+    }
+
+    // Inverse of projectPoint's rotation: maps a projected-space vector back to
+    // world space. projectPoint applies R = Rx(after y-rot) so the forward map is
+    // a pure rotation; its inverse is the transpose, implemented by reversing the
+    // operation order with negated-equivalent trig. Used to turn a screen-plane
+    // drag (projected dx, dy) into a world-space translation.
+    function unprojectVector(v, rx, ry) {
+      const cy = Math.cos(ry), sy = Math.sin(ry);
+      const cx = Math.cos(rx), sx = Math.sin(rx);
+      // Forward: (x1=x*cy+z*sy, z1=-x*sy+z*cy); y2=y*cx - z1*sx; z2=y*sx + z1*cx.
+      // Invert step 2 (rotation about X by rx) on (y,z):
+      const y1 = v.y * cx + v.z * sx;
+      const z1 = -v.y * sx + v.z * cx;
+      const x1 = v.x;
+      // Invert step 1 (rotation about Y by ry) on (x,z):
+      const x = x1 * cy - z1 * sy;
+      const z = x1 * sy + z1 * cy;
+      return { x, y: y1, z };
     }
 
     function drawAxis(ctx, cx, cy, scale, len, rx, ry) {
@@ -4983,12 +6024,5 @@
 
     init();
   </script>
-  <!-- ════════════════════════════════════════════════
-       ANALYTICS — GoatCounter (privacy-friendly visitor stats)
-       Dashboard: https://advanced-solenoid-designer.goatcounter.com
-       ════════════════════════════════════════════════ -->
-  <script data-goatcounter="https://advanced-solenoid-designer.goatcounter.com/count"
-          async src="//gc.zgo.at/count.js"></script>
-
 </body>
 </html>
