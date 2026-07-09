@@ -4,19 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="color-scheme" content="dark" />
-  <title>Advanced Solenoid Designer</title>
-  <!-- Favicon / app icons for browser tabs, bookmarks, Google Search, and mobile homescreen -->
-  <link rel="icon" href="./favicon.ico" sizes="any">
-  <link rel="icon" type="image/svg+xml" href="./favicon.svg">
-  <link rel="icon" type="image/png" sizes="48x48" href="./favicon-48.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
-  <link rel="manifest" href="./site.webmanifest">
-  <meta name="theme-color" content="#0c0e15">
-  <meta name="description" content="Interactive solenoid and coil design platform with field maps, 3D geometry, impedance matching, and optimization tools.">
-  <meta property="og:title" content="Advanced Solenoid Designer">
-  <meta property="og:description" content="Interactive electromagnetic coil design platform.">
-  <meta property="og:image" content="./social-preview.png">
-
+  <title>Solenoid / Spiral Designer — Live Web v28</title>
   <style>
     :root {
       /* Structural tokens shared across every theme */
@@ -4316,6 +4304,15 @@
         ctx.beginPath(); ctx.moveTo(p.l, y); ctx.lineTo(w - p.r, y); ctx.stroke();
       }
 
+      // Clip everything drawn inside the axes to the plot rectangle so the
+      // curve (and SRF marker) can never spill outside the framed plot area,
+      // no matter how far the user zooms or pans.
+      const plotX = p.l, plotY = p.t, plotW = w - p.l - p.r, plotH = h - p.t - p.b;
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(plotX, plotY, plotW, plotH);
+      ctx.clip();
+
       ctx.strokeStyle = opt.color;
       ctx.lineWidth = 2.4;
       ctx.beginPath();
@@ -4339,6 +4336,13 @@
           ctx.fillText(`SRF ${formatFrequency(srf)}`, x + 8, p.t + 14);
         }
       }
+      ctx.restore();
+
+      // Frame around the plot area.
+      const isLightFrame = document.documentElement.getAttribute("data-theme") === "light";
+      ctx.strokeStyle = isLightFrame ? "rgba(31,37,51,.42)" : "rgba(255,255,255,.22)";
+      ctx.lineWidth = 1;
+      ctx.strokeRect(plotX + 0.5, plotY + 0.5, plotW - 1, plotH - 1);
 
       ctx.fillStyle = "rgba(243,246,251,.95)";
       ctx.font = "700 12px Inter, system-ui, sans-serif";
