@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="color-scheme" content="dark" />
-  <title>Advanced Solenoid Designer | Coil Calculator, Field Maps & 3D Geometry</title>
+  <title>Advanced Solenoid Designer | Solenoid, Coil, Inductance & Magnetic Field Calculator</title>
   <!-- Favicon / app icons: relative paths for GitHub Pages, inline SVG fallback for standalone use -->
   <link rel="icon" href="./favicon.ico" sizes="any">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAyNCIgaGVpZ2h0PSIxMDI0IiB2aWV3Qm94PSIwIDAgMTAyNCAxMDI0IiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJiZyIgeDE9Ijg4IiB5MT0iNTQiIHgyPSI5MzYiIHkyPSI5NzAiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMTgxYzI5Ii8+CiAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzBjMGUxNSIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iY29pbCIgeDE9IjE4MCIgeTE9IjI1MCIgeDI9IjgyMCIgeTI9Ijc4MCIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNlMDlhNTgiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjNGRhM2ZmIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGZpbHRlciBpZD0ic2hhZG93IiB4PSItMTAlIiB5PSItMTAlIiB3aWR0aD0iMTIwJSIgaGVpZ2h0PSIxMjAlIiBjb2xvci1pbnRlcnBvbGF0aW9uLWZpbHRlcnM9InNSR0IiPgogICAgICA8ZmVEcm9wU2hhZG93IGR4PSIwIiBkeT0iMjAiIHN0ZERldmlhdGlvbj0iMzAiIGZsb29kLWNvbG9yPSIjMDAwMDAwIiBmbG9vZC1vcGFjaXR5PSIwLjM1Ii8+CiAgICA8L2ZpbHRlcj4KICAgIDxmaWx0ZXIgaWQ9Imdsb3ciIHg9Ii0zMCUiIHk9Ii0zMCUiIHdpZHRoPSIxNjAlIiBoZWlnaHQ9IjE2MCUiIGNvbG9yLWludGVycG9sYXRpb24tZmlsdGVycz0ic1JHQiI+CiAgICAgIDxmZUdhdXNzaWFuQmx1ciBzdGREZXZpYXRpb249IjEyIiByZXN1bHQ9ImJsdXIiLz4KICAgICAgPGZlTWVyZ2U+CiAgICAgICAgPGZlTWVyZ2VOb2RlIGluPSJibHVyIi8+CiAgICAgICAgPGZlTWVyZ2VOb2RlIGluPSJTb3VyY2VHcmFwaGljIi8+CiAgICAgIDwvZmVNZXJnZT4KICAgIDwvZmlsdGVyPgogIDwvZGVmcz4KICA8cmVjdCB4PSI3MiIgeT0iNzIiIHdpZHRoPSI4ODAiIGhlaWdodD0iODgwIiByeD0iMjIwIiBmaWxsPSJ1cmwoI2JnKSIgc3Ryb2tlPSIjMjYzMjQ3IiBzdHJva2Utd2lkdGg9IjM0IiBmaWx0ZXI9InVybCgjc2hhZG93KSIvPgogIDxjaXJjbGUgY3g9IjUxMiIgY3k9IjUxMiIgcj0iMzI0IiBmaWxsPSIjNGRhM2ZmIiBvcGFjaXR5PSIwLjA1NSIvPgogIDxjaXJjbGUgY3g9IjUxMiIgY3k9IjUxMiIgcj0iMjI0IiBmaWxsPSIjZTA5YTU4IiBvcGFjaXR5PSIwLjAzNSIvPgogIDxwYXRoIGQ9Ik0xODggNTEySDgzNiIgc3Ryb2tlPSIjYTliMmM0IiBzdHJva2Utd2lkdGg9IjMwIiBzdHJva2UtbGluZWNhcD0icm91bmQiIG9wYWNpdHk9IjAuNDQiLz4KICA8cGF0aCBkPSJNMjQ2IDUxMkMyNDYgMzY1IDM0MiAzNjUgMzQyIDUxMkMzNDIgNjU5IDQzOCA2NTkgNDM4IDUxMkM0MzggMzY1IDUzNCAzNjUgNTM0IDUxMkM1MzQgNjU5IDYzMCA2NTkgNjMwIDUxMkM2MzAgMzY1IDcyNiAzNjUgNzI2IDUxMiIgc3Ryb2tlPSJ1cmwoI2NvaWwpIiBzdHJva2Utd2lkdGg9Ijc4IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGZpbHRlcj0idXJsKCNnbG93KSIvPgogIDxwYXRoIGQ9Ik03NjAgNTEySDg1ME04MDcgNDU0TDg2NiA1MTJMODA3IDU3MCIgc3Ryb2tlPSIjN2NiY2ZmIiBzdHJva2Utd2lkdGg9IjQ4IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KICA8Y2lyY2xlIGN4PSIyNDgiIGN5PSI1MTIiIHI9IjIyIiBmaWxsPSIjZTA5YTU4Ii8+CiAgPGNpcmNsZSBjeD0iNzI2IiBjeT0iNTEyIiByPSIyMiIgZmlsbD0iIzRkYTNmZiIvPgo8L3N2Zz4K">
@@ -13,16 +13,16 @@
   <link rel="manifest" href="./site.webmanifest">
   <meta name="theme-color" content="#0c0e15">
 
-  <meta name="description" content="Design and analyze solenoid, Helmholtz, Maxwell, gradient, saddle, racetrack, pancake and spiral coils. Calculate magnetic fields, inductance, resistance, impedance matching, Litz wire, mutual inductance and 3D geometry in your browser.">
+  <meta name="description" content="Free online solenoid and electromagnetic coil calculator. Design solenoid, Helmholtz, Maxwell, gradient, saddle, racetrack, pancake and spiral coils; calculate magnetic field, inductance, resistance, resonance, impedance matching, Litz wire and 3D geometry.">
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
   <link rel="canonical" href="https://sfurkankahraman.github.io/advanced-solenoid-designer/">
   <meta name="author" content="Satılmış Furkan Kahraman">
-  <meta name="keywords" content="solenoid designer, coil calculator, Helmholtz coil, Maxwell coil, gradient coil, magnetic field calculator, inductance calculator, impedance matching, Smith chart, Litz wire, electromagnetic coil design">
+  <meta name="keywords" content="advanced solenoid designer, solenoid designer, online solenoid designer, free solenoid calculator, solenoid calculator, solenoid coil calculator, solenoid design calculator, solenoid magnetic field calculator, solenoid inductance calculator, solenoid resistance calculator, electromagnetic coil designer, electromagnetic coil calculator, coil design software, online coil calculator, free coil calculator, coil winding calculator, coil geometry calculator, coil turns calculator, coil length calculator, coil diameter calculator, air core coil calculator, multilayer coil calculator, multi coil calculator, nested coil calculator, mutual inductance calculator, inductance calculator, inductance estimation, resistance calculator, wire length calculator, copper wire resistance calculator, magnetic field calculator, magnetic flux density calculator, magnetic field map, 2D magnetic field map, 3D coil geometry, Biot Savart calculator, Biot-Savart law, axial magnetic field, off axis magnetic field, Helmholtz coil calculator, Helmholtz coil designer, Helmholtz pair calculator, Maxwell coil calculator, Maxwell coil designer, anti Helmholtz coil, anti-Helmholtz coil calculator, gradient coil calculator, MRI gradient coil, Z gradient coil, X gradient coil, Y gradient coil, Golay coil, saddle coil calculator, saddle coil designer, racetrack coil calculator, racetrack coil designer, pancake coil calculator, pancake coil designer, spiral coil calculator, spiral inductor calculator, planar coil calculator, PCB coil calculator, PCB inductor calculator, resonant coil calculator, resonance frequency calculator, LC resonance calculator, impedance calculator, impedance matching calculator, Smith chart calculator, Smith chart matching, series capacitor calculator, parallel capacitor calculator, matching network calculator, L network matching, Litz wire calculator, Litz wire recommendation, skin depth calculator, AC resistance calculator, Q factor calculator, quality factor calculator, self resonant frequency calculator, coil optimizer, coil optimization, magnetic coil simulation, electromagnetic simulation, MRI coil design, NMR coil design, MPI coil design, MPS coil design, wireless power coil design, laboratory electromagnet design, bobin hesaplama, solenoid hesaplama, selenoid hesaplama, bobin tasarımı, elektromanyetik bobin tasarımı, manyetik alan hesaplama, endüktans hesaplama, indüktans hesaplama, bobin direnci hesaplama, sarım sayısı hesaplama, tel uzunluğu hesaplama, Helmholtz bobini hesaplama, Maxwell bobini hesaplama, gradyan bobini hesaplama, pancake bobin, spiral bobin, empedans eşleştirme, Smith diyagramı, Litz teli, rezonans frekansı hesaplama, karşılıklı endüktans hesaplama">
 
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Advanced Solenoid Designer">
-  <meta property="og:title" content="Advanced Solenoid Designer | Interactive Coil Design Platform">
-  <meta property="og:description" content="Design electromagnetic coils with live magnetic-field maps, 3D geometry, inductance calculations, Smith-chart matching and optimization tools.">
+  <meta property="og:title" content="Advanced Solenoid Designer | Free Online Solenoid & Coil Calculator">
+  <meta property="og:description" content="Free browser-based solenoid and coil design calculator with magnetic-field maps, 3D geometry, inductance, resistance, resonance, Smith-chart matching and optimization tools.">
   <meta property="og:url" content="https://sfurkankahraman.github.io/advanced-solenoid-designer/">
   <meta property="og:image" content="https://sfurkankahraman.github.io/advanced-solenoid-designer/social-preview.png">
   <meta property="og:image:width" content="1200">
@@ -32,7 +32,7 @@
 
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Advanced Solenoid Designer">
-  <meta name="twitter:description" content="Interactive solenoid and electromagnetic coil design with field maps, 3D geometry, Smith matching and optimization.">
+  <meta name="twitter:description" content="Free online solenoid and electromagnetic coil calculator with field maps, 3D geometry, inductance, resonance, Smith matching and optimization.">
   <meta name="twitter:image" content="https://sfurkankahraman.github.io/advanced-solenoid-designer/social-preview.png">
 
   <script type="application/ld+json">
@@ -40,13 +40,13 @@
     "@context": "https://schema.org",
     "@type": "WebApplication",
     "name": "Advanced Solenoid Designer",
-    "alternateName": "Solenoid Designer",
+    "alternateName": ["Solenoid Designer", "Online Coil Calculator", "Magnetic Field Calculator", "Bobin Hesaplama Aracı"],
     "url": "https://sfurkankahraman.github.io/advanced-solenoid-designer/",
-    "description": "Browser-based electromagnetic coil design platform with magnetic field maps, 3D geometry, inductance and resistance calculations, impedance matching, Litz wire analysis and optimization.",
+    "description": "Free browser-based solenoid and electromagnetic coil design calculator with magnetic field maps, 3D geometry, inductance, resistance, resonance, impedance matching, Litz wire analysis, mutual inductance and optimization.",
     "applicationCategory": "EngineeringApplication",
     "operatingSystem": "Any",
     "browserRequirements": "Requires a modern web browser with JavaScript enabled.",
-    "inLanguage": "en",
+    "inLanguage": ["en", "tr"],
     "isAccessibleForFree": true,
     "offers": {
       "@type": "Offer",
